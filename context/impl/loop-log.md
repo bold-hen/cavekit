@@ -61,3 +61,11 @@
 - **Files:** internal/frontier/parser.go, internal/frontier/parser_test.go
 - **Validation:** Build P, Tests 7/7 P, Acceptance 4/4
 - **Next:** T-011 — Tmux input injection (Tier 1, unblocks T-020, T-022)
+
+### Iteration 9 — 2026-03-17
+- **Task:** T-011 — Tmux input injection (keystrokes, prompts)
+- **Tier:** 1
+- **Status:** DONE
+- **Files:** internal/tmux/input.go, internal/tmux/input_test.go
+- **Validation:** Build P, Tests 4/4 P, Acceptance 3/3
+- **Next:** T-010 — Tmux status detection
