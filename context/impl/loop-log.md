@@ -21,3 +21,11 @@
 - **Files:** internal/session/instance.go, internal/session/instance_test.go
 - **Validation:** Build P, Tests 6/6 P, Acceptance 4/4
 - **Next:** T-002 — Tmux session create/kill/exists
+
+### Iteration 4 — 2026-03-17
+- **Task:** T-002 — Tmux session create/kill/exists
+- **Tier:** 0
+- **Status:** DONE
+- **Files:** internal/tmux/session.go, internal/tmux/session_test.go
+- **Validation:** Build P, Tests 6/6 P, Acceptance 6/6
+- **Next:** T-003 — Tmux pane content capture
