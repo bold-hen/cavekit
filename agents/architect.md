@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Generates framework-specific implementation plans from blueprints. Use when running /blueprint:architect-from-blueprints command.
+description: Generates framework-specific implementation plans from blueprints. Use when running /bp:architect-from-blueprints command.
 model: opus
 tools: [Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch]
 ---

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # blueprint-launch-session — Creates a tmux session with one pane per build site.
-# Each pane runs Claude in its own git worktree with /blueprint:build.
+# Each pane runs Claude in its own git worktree with /bp:build.
 #
 # Usage: blueprint-launch-session.sh [--expanded] <frontier-path> [<frontier-path> ...]
 #
@@ -215,16 +215,16 @@ else
   tmux select-pane -t "$SESSION_NAME:0.0"
 fi
 
-# ─── Staggered /blueprint:build launch ──────────────────────────────────────
+# ─── Staggered /bp:build launch ──────────────────────────────────────
 
-# Background process that sends /blueprint:build to NEW panes (resumed ones already have context)
+# Background process that sends /bp:build to NEW panes (resumed ones already have context)
 (
   sleep 3  # Wait for Claude instances to start
 
   for i in "${!NAMES[@]}"; do
     name="${NAMES[$i]}"
 
-    # Resumed sessions already have their loop — skip sending /blueprint:build
+    # Resumed sessions already have their loop — skip sending /bp:build
     if [[ "${RESUMING[$i]}" == "true" ]]; then
       continue
     fi
@@ -235,7 +235,7 @@ fi
       target="$SESSION_NAME:0.${i}"
     fi
 
-    tmux send-keys -t "$target" "/blueprint:build --filter ${name}" Enter
+    tmux send-keys -t "$target" "/bp:build --filter ${name}" Enter
 
     # Stagger between launches (skip delay after last one)
     sleep "$STAGGER_DELAY"

@@ -1,5 +1,5 @@
 ---
-name: blueprint-progress
+name: bp-progress
 description: "Show progress against the build site — tasks done, in progress, blocked, remaining"
 argument-hint: "[--filter PATTERN]"
 ---
@@ -12,7 +12,7 @@ Show the user a progress report by comparing the build site against implementati
 
 Look in `context/frontiers/` then `context/plans/` for `*site*` or `*frontier*` files. If `--filter` is set (parse from `$ARGUMENTS`), match against it.
 
-If no site found: "No site found. Run `/blueprint:architect` first."
+If no site found: "No site found. Run `/bp:architect` first."
 
 ## Step 2: Read State
 

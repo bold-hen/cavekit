@@ -70,7 +70,7 @@ This pattern prevents loading the entire documentation tree into the context win
 Two techniques keep documents focused and navigable:
 
 - **Decomposition** — break large documents into domain-specific files
-- **Spec compaction** — compress implementation tracking when files exceed approximately 500 lines (see `blueprint:impl-tracking`)
+- **Spec compaction** — compress implementation tracking when files exceed approximately 500 lines (see `bp:impl-tracking`)
 
 Together, these ensure that the context an agent loads is dense with relevant information rather than bloated with resolved history.
 
@@ -399,19 +399,19 @@ Completed or archived content should be moved to `impl/archive/`, not left in th
 
 ## Integration with Other Skills
 
-### With `blueprint:blueprint-writing`
+### With `bp:blueprint-writing`
 
 The context architecture defines WHERE blueprints live. The blueprint-writing skill defines HOW to write them. Blueprints go in `context/blueprints/` following the naming convention `blueprint-{domain}.md`.
 
-### With `blueprint:impl-tracking`
+### With `bp:impl-tracking`
 
 Implementation tracking documents live in `context/impl/`. When they exceed 500 lines, compact them and archive the old version to `context/impl/archive/`.
 
-### With `blueprint:validation-first`
+### With `bp:validation-first`
 
 Validation gate results are recorded in implementation tracking documents within the context structure. Phase gates reference specs by requirement ID.
 
-### With `blueprint:methodology`
+### With `bp:methodology`
 
 The context directory structure is established during the Spec phase of DABI and maintained throughout the entire lifecycle.
 

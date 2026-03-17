@@ -181,7 +181,7 @@ async function main() {
 
   if (frontiers.length === 0) {
     console.error("No frontiers found in context/frontiers/");
-    console.error("Run /blueprint:architect first to generate one.");
+    console.error("Run /bp:architect first to generate one.");
     process.exit(1);
   }
 

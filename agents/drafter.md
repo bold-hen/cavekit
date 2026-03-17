@@ -1,6 +1,6 @@
 ---
 name: drafter
-description: Generates implementation-agnostic blueprints from reference materials or existing code. Use when running /blueprint:draft-from-code or /blueprint:draft-from-refs commands.
+description: Generates implementation-agnostic blueprints from reference materials or existing code. Use when running /bp:draft-from-code or /bp:draft-from-refs commands.
 model: opus
 tools: [Read, Write, Edit, Grep, Glob, Bash]
 ---

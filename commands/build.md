@@ -1,5 +1,5 @@
 ---
-name: blueprint-build
+name: bp-build
 description: "Start a Ralph Loop that implements the build site — builds, validates, commits, repeats"
 argument-hint: "[--filter PATTERN] [--peer-review] [--max-iterations N] [--completion-promise TEXT]"
 allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-build.sh:*)", "Bash(cd *)"]

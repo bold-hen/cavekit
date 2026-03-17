@@ -313,7 +313,7 @@ Use brainstorming during the Draft phase to explore requirements you may not hav
 3. Formalize each requirement with acceptance criteria
 4. Add to the blueprint using the template
 
-### With `blueprint:validation-first`
+### With `bp:validation-first`
 
 Every acceptance criterion in a blueprint must map to at least one validation gate. When writing blueprints, think about which gate will verify each requirement:
 
@@ -326,11 +326,11 @@ Every acceptance criterion in a blueprint must map to at least one validation ga
 | "Application starts and displays main screen" | Gate 5: Launch Verification |
 | "UI matches design intent" | Gate 6: Human Review |
 
-### With `blueprint:context-architecture`
+### With `bp:context-architecture`
 
-Blueprints live in the `context/blueprints/` directory. See `blueprint:context-architecture` for the full context directory structure, CLAUDE.md conventions, and multi-repo strategies.
+Blueprints live in the `context/blueprints/` directory. See `bp:context-architecture` for the full context directory structure, CLAUDE.md conventions, and multi-repo strategies.
 
-### With `blueprint:impl-tracking`
+### With `bp:impl-tracking`
 
 As blueprints are implemented, progress is tracked in `context/impl/` documents. Dead ends discovered during implementation should be recorded to prevent future agents from retrying failed approaches.
 

@@ -32,7 +32,7 @@ printf "${B}Installer${R}\n\n"
 # ─── Preflight ──────────────────────────────────────────────────────────────
 
 command -v git &>/dev/null || fail "git not found."
-command -v claude &>/dev/null || warn "claude CLI not found. Install Claude Code to use /blueprint:... commands."
+command -v claude &>/dev/null || warn "claude CLI not found. Install Claude Code to use /bp:... commands."
 command -v tmux &>/dev/null || warn "tmux not found. Install for the parallel launcher: brew install tmux"
 
 # ─── Register Claude Code plugin ───────────────────────────────────────────
@@ -53,7 +53,7 @@ if [[ ! -f "$SETTINGS_FILE" ]]; then
     }
   },
   "enabledPlugins": {
-    "blueprint@${MARKETPLACE_NAME}": true
+    "bp@${MARKETPLACE_NAME}": true
   }
 }
 EOF
@@ -69,7 +69,7 @@ path, name, mpath = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(path) as f:
     d = json.load(f)
 d.setdefault("extraKnownMarketplaces", {})[name] = {"source": {"source": "directory", "path": mpath}}
-d.setdefault("enabledPlugins", {})[f"blueprint@{name}"] = True
+d.setdefault("enabledPlugins", {})[f"bp@{name}"] = True
 with open(path, "w") as f:
     json.dump(d, f, indent=2)
 PYEOF
@@ -78,7 +78,7 @@ PYEOF
       warn "Could not auto-update settings. Add manually to $SETTINGS_FILE:"
       printf "\n"
       printf '  "extraKnownMarketplaces": { "%s": { "source": { "source": "directory", "path": "%s" } } }\n' "$MARKETPLACE_NAME" "$MARKETPLACE_PATH"
-      printf '  "enabledPlugins": { "blueprint@%s": true }\n\n' "$MARKETPLACE_NAME"
+      printf '  "enabledPlugins": { "bp@%s": true }\n\n' "$MARKETPLACE_NAME"
     fi
   fi
 fi
@@ -116,10 +116,10 @@ printf "    blueprint --analytics               Show loop trends\n"
 printf "    blueprint --kill                    Stop sessions and clean worktrees\n"
 printf "\n"
 printf "  ${B}Claude:${R}\n"
-printf "    /blueprint:draft                    Draft blueprints\n"
-printf "    /blueprint:architect                Architect build sites\n"
-printf "    /blueprint:build                    Build from blueprints\n"
-printf "    /blueprint:inspect                  Inspect the build\n"
-printf "    /blueprint:merge                    Merge completed Blueprint branches\n"
+printf "    /bp:draft                    Draft blueprints\n"
+printf "    /bp:architect                Architect build sites\n"
+printf "    /bp:build                    Build from blueprints\n"
+printf "    /bp:inspect                  Inspect the build\n"
+printf "    /bp:merge                    Merge completed Blueprint branches\n"
 printf "\n"
 printf "  Restart Claude Code to load the plugin.\n\n"

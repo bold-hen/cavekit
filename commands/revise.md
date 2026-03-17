@@ -1,5 +1,5 @@
 ---
-name: blueprint-revise
+name: bp-revise
 description: Trace recent manual code fixes back into blueprints and context files
 ---
 

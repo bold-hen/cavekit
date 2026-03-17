@@ -1,5 +1,5 @@
 ---
-name: blueprint-gap-analysis
+name: bp-gap-analysis
 description: Compare what was built against what was intended
 ---
 
@@ -102,7 +102,7 @@ For each gap (PARTIAL, MISSING, OVER-BUILT, UNTESTABLE), determine the root caus
 | P1 | plan-{domain}.md | {what to update} | R{n} |
 
 ### Recommended Next Steps
-1. Run `/blueprint:revise` to trace gaps into context files
+1. Run `/bp:revise` to trace gaps into context files
 2. {Specific blueprint updates needed}
 3. {Specific plan updates needed}
 4. {Implementation work remaining}

@@ -1,5 +1,5 @@
 ---
-name: blueprint-architect
+name: bp-architect
 description: "Generate a build site from blueprints — the task dependency graph that drives building"
 argument-hint: "[--filter PATTERN]"
 ---
@@ -13,7 +13,7 @@ No domain plans. No file ownership. No time budgets. Just: tasks, what blueprint
 ## Step 1: Validate Blueprints Exist
 
 Check `context/blueprints/` for blueprint files. If none found, tell the user:
-> No blueprints found. Run `/blueprint:draft` first.
+> No blueprints found. Run `/bp:draft` first.
 
 If `--filter` is set, only include blueprints matching the filter pattern.
 
@@ -109,8 +109,8 @@ If a site already exists, ask the user whether to overwrite or keep the existing
 ### Tier 0 Tasks: {count} (can start immediately)
 
 ### Next Step
-Run `/blueprint:build` to start the implementation loop.
-Run `/blueprint:build --peer review` to add Codex review.
+Run `/bp:build` to start the implementation loop.
+Run `/bp:build --peer review` to add Codex review.
 ```
 
 ### Rules

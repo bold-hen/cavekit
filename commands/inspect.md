@@ -1,12 +1,12 @@
 ---
-name: blueprint-inspect
+name: bp-inspect
 description: "Inspect the last loop: gap analysis against blueprints + peer review code review for bugs, security, and quality"
 argument-hint: "[--filter PATTERN]"
 ---
 
 # Blueprint Inspect — Post-Loop Analysis
 
-Run this after `/blueprint:build` completes (or is stopped). It does two things:
+Run this after `/bp:build` completes (or is stopped). It does two things:
 
 1. **Gap analysis** — compares what was built against what the blueprints require
 2. **Peer review** — finds bugs, security issues, and quality problems in the code that was written
@@ -23,7 +23,7 @@ Read these files to understand what happened:
 6. **Git diff** — run `git diff main...HEAD` (or appropriate base branch) to see all code changes
 
 If no impl tracking or loop log exists, tell the user:
-> No loop artifacts found. Run `/blueprint:build` first, then `/blueprint:inspect` after it completes.
+> No loop artifacts found. Run `/bp:build` first, then `/bp:inspect` after it completes.
 
 ## Step 2: Gap Analysis
 
@@ -155,8 +155,8 @@ Present this to the user:
 ## Recommended Next Steps
 1. {highest priority action}
 2. {next action}
-3. {if gaps exist: run `/blueprint:build` again to address remaining work}
-4. {if blueprint gaps found: blueprints will be updated below, then `/blueprint:architect` + `/blueprint:build`}
+3. {if gaps exist: run `/bp:build` again to address remaining work}
+4. {if blueprint gaps found: blueprints will be updated below, then `/bp:architect` + `/bp:build`}
 ```
 
 ## Step 5: Revise
@@ -215,7 +215,7 @@ last_edited: "{CURRENT_DATE_UTC}"
 | F-002: {title} | P1 | {path} | NEW |
 ```
 
-These findings will be picked up by the next `/blueprint:build` loop — the build prompt reads impl tracking and prioritizes P0 issues first.
+These findings will be picked up by the next `/bp:build` loop — the build prompt reads impl tracking and prioritizes P0 issues first.
 
 ### Report What Changed
 
@@ -237,5 +237,5 @@ After revision, tell the user:
 ### Findings Logged
 {n} findings written to context/impl/impl-review-findings.md
 
-Ready for next cycle: `/blueprint:build`
+Ready for next cycle: `/bp:build`
 ```

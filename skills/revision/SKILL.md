@@ -326,16 +326,16 @@ Every revision cycle tightens the blueprints, so the iteration loop settles into
 
 ## 7. Integration with Other Blueprint Skills
 
-- **Convergence monitoring:** Use `blueprint:convergence-monitoring` to detect when manual fixes are decreasing (good) or increasing (revision debt).
-- **Prompt pipeline:** Revision may trigger changes to prompts (Step 6), which affects the `blueprint:prompt-pipeline` design.
+- **Convergence monitoring:** Use `bp:convergence-monitoring` to detect when manual fixes are decreasing (good) or increasing (revision debt).
+- **Prompt pipeline:** Revision may trigger changes to prompts (Step 6), which affects the `bp:prompt-pipeline` design.
 - **Validation-first design:** Stronger validation gates catch issues earlier, reducing the need for revision.
-- **Gap analysis:** Systematic gap analysis (`/blueprint:gap-analysis`) identifies revision targets proactively, rather than waiting for bugs.
+- **Gap analysis:** Systematic gap analysis (`/bp:gap-analysis`) identifies revision targets proactively, rather than waiting for bugs.
 
 ---
 
 ## Cross-References
 
 - **Convergence patterns:** See `references/convergence-patterns.md` for how revision drives convergence.
-- **Prompt pipeline:** See `blueprint:prompt-pipeline` skill for how prompt 006 (rewrite pattern) implements automated revision.
-- **Impl tracking:** See `blueprint:impl-tracking` skill for the revision log format in implementation tracking documents.
-- **Validation gates:** See `blueprint:validation-first` skill for validation layers that catch issues before they require revision.
+- **Prompt pipeline:** See `bp:prompt-pipeline` skill for how prompt 006 (rewrite pattern) implements automated revision.
+- **Impl tracking:** See `bp:impl-tracking` skill for the revision log format in implementation tracking documents.
+- **Validation gates:** See `bp:validation-first` skill for validation layers that catch issues before they require revision.

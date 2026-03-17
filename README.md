@@ -34,7 +34,7 @@ Interactive multi-select picker shows all build sites:
 
 Selected sites each get:
 - Their own **git worktree** (branch: `blueprint/<site-name>`)
-- A **tmux pane** running Claude Code with `/blueprint:build`
+- A **tmux pane** running Claude Code with `/bp:build`
 - Auto-layout: horizontal for 2-3 agents, tiled for 4+
 - Live status bar showing per-site progress
 
@@ -43,7 +43,7 @@ Staggered launch (5s between agents) to avoid API rate limits.
 ### Expanded mode (`--monitor --expanded`)
 
 One tmux window per site with the full 3-pane layout:
-- **Left (70%)** — Claude Code running `/blueprint:build`
+- **Left (70%)** — Claude Code running `/bp:build`
 - **Top-right** — live progress: tasks done, tiers, progress bar
 - **Bottom-right** — live activity: iteration log, git commits
 
@@ -61,19 +61,19 @@ Parses loop logs across all cycles and worktrees:
 ## Claude: slash commands
 
 ```
-/blueprint:draft       →  draft blueprints (the WHAT)
-/blueprint:architect   →  generate build site (the ORDER)
-/blueprint:build       →  ralph loop (the BUILD)
-/blueprint:inspect     →  gap analysis + peer review (the CHECK)
-/blueprint:merge       →  blueprint-aware branch integration (the SHIP)
+/bp:draft       →  draft blueprints (the WHAT)
+/bp:architect   →  generate build site (the ORDER)
+/bp:build       →  ralph loop (the BUILD)
+/bp:inspect     →  gap analysis + peer review (the CHECK)
+/bp:merge       →  blueprint-aware branch integration (the SHIP)
 ```
 
 ### 1. Draft — write blueprints
 
 ```bash
-/blueprint:draft                       # interactive — asks what to build
-/blueprint:draft context/refs/         # from PRDs, API docs, research
-/blueprint:draft --from-code           # from existing codebase
+/bp:draft                       # interactive — asks what to build
+/bp:draft context/refs/         # from PRDs, API docs, research
+/bp:draft --from-code           # from existing codebase
 ```
 
 Decomposes your project into domains. Each domain gets a blueprint with R-numbered requirements and testable acceptance criteria.
@@ -81,8 +81,8 @@ Decomposes your project into domains. Each domain gets a blueprint with R-number
 ### 2. Architect — generate build site
 
 ```bash
-/blueprint:architect                   # all blueprints
-/blueprint:architect --filter v2       # only v2 blueprints
+/bp:architect                   # all blueprints
+/bp:architect --filter v2       # only v2 blueprints
 ```
 
 Reads blueprints, breaks requirements into tasks, maps dependencies, organizes into tiers.
@@ -90,9 +90,9 @@ Reads blueprints, breaks requirements into tasks, maps dependencies, organizes i
 ### 3. Build — run the loop
 
 ```bash
-/blueprint:build                       # implement everything
-/blueprint:build --peer-review         # add Codex (GPT-5.4) review
-/blueprint:build --max-iterations 30
+/bp:build                       # implement everything
+/bp:build --peer-review         # add Codex (GPT-5.4) review
+/bp:build --max-iterations 30
 ```
 
 Each iteration: read site → find next unblocked task → read blueprint → implement → validate → commit → loop.
@@ -100,16 +100,16 @@ Each iteration: read site → find next unblocked task → read blueprint → im
 ### 4. Inspect — post-loop check
 
 ```bash
-/blueprint:inspect                     # gap analysis + peer review
+/bp:inspect                     # gap analysis + peer review
 ```
 
 ### 5. Merge — blueprint-aware branch integration
 
 ```bash
-/blueprint:merge                       # merge all blueprint/* branches into main
+/bp:merge                       # merge all blueprint/* branches into main
 ```
 
-After parallel execution, each site lives on its own `blueprint/<name>` branch. `/blueprint:merge` integrates them back into main:
+After parallel execution, each site lives on its own `blueprint/<name>` branch. `/bp:merge` integrates them back into main:
 
 1. Surveys all branches — commits, file overlaps, dependency order
 2. Reads the **blueprints and impl tracking** for each branch
@@ -139,15 +139,15 @@ context/
 
 | Command | Description |
 |---------|-------------|
-| **`/blueprint:draft`** | Draft blueprints |
-| **`/blueprint:architect`** | Generate build site |
-| **`/blueprint:build`** | Ralph Loop implementation |
-| **`/blueprint:inspect`** | Gap analysis + peer review |
-| **`/blueprint:merge`** | Blueprint-aware branch integration |
-| `/blueprint:progress` | Check site progress |
-| `/blueprint:gap-analysis` | Compare built vs intended |
-| `/blueprint:revise` | Trace manual fixes to blueprints |
-| `/blueprint:help` | Show usage |
+| **`/bp:draft`** | Draft blueprints |
+| **`/bp:architect`** | Generate build site |
+| **`/bp:build`** | Ralph Loop implementation |
+| **`/bp:inspect`** | Gap analysis + peer review |
+| **`/bp:merge`** | Blueprint-aware branch integration |
+| `/bp:progress` | Check site progress |
+| `/bp:gap-analysis` | Compare built vs intended |
+| `/bp:revise` | Trace manual fixes to blueprints |
+| `/bp:help` | Show usage |
 
 | CLI | Description |
 |-----|-------------|
@@ -155,7 +155,7 @@ context/
 | `blueprint --monitor --expanded` | One window per agent with dashboards |
 | `blueprint --status` | Check site progress |
 | `blueprint --analytics` | Trends across cycles |
-| `blueprint --merge` | Shows branches ready to merge (use `/blueprint:merge` in Claude) |
+| `blueprint --merge` | Shows branches ready to merge (use `/bp:merge` in Claude) |
 | `blueprint --kill` | Stop all agents, clean worktrees |
 
 ## Example

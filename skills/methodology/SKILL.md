@@ -185,26 +185,26 @@ Blueprint is composed of techniques that work together. This methodology skill i
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| `blueprint:blueprint-writing` | Write implementation-agnostic blueprints with testable acceptance criteria | Draft phase — always the first step |
-| `blueprint:context-architecture` | Organize context for progressive disclosure | Project setup and ongoing maintenance |
-| `blueprint:impl-tracking` | Track implementation progress, dead ends, test health | Build and Inspect phases |
-| `blueprint:validation-first` | Design validation gates agents can execute | All phases — validation is continuous |
+| `bp:blueprint-writing` | Write implementation-agnostic blueprints with testable acceptance criteria | Draft phase — always the first step |
+| `bp:context-architecture` | Organize context for progressive disclosure | Project setup and ongoing maintenance |
+| `bp:impl-tracking` | Track implementation progress, dead ends, test health | Build and Inspect phases |
+| `bp:validation-first` | Design validation gates agents can execute | All phases — validation is continuous |
 
 ### Pipeline Skills
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| `blueprint:prompt-pipeline` | Design numbered prompt pipelines for DABI | Setting up automation |
-| `blueprint:revision` | Trace bugs back to blueprints and fix at the source | Inspect phase — after finding gaps |
+| `bp:prompt-pipeline` | Design numbered prompt pipelines for DABI | Setting up automation |
+| `bp:revision` | Trace bugs back to blueprints and fix at the source | Inspect phase — after finding gaps |
 | `blueprint:brownfield-adoption` | Adopt Blueprint on existing codebases | Starting Blueprint on legacy projects |
 
 ### Advanced Skills
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| `blueprint:peer-review` | Use a second agent to challenge the first | Quality gates, architecture review |
+| `bp:peer-review` | Use a second agent to challenge the first | Quality gates, architecture review |
 | `blueprint:speculative-pipeline` | Stagger pipeline stages for parallelism | Optimizing long pipelines |
-| `blueprint:convergence-monitoring` | Detect convergence vs ceiling | Monitoring iteration loops |
+| `bp:convergence-monitoring` | Detect convergence vs ceiling | Monitoring iteration loops |
 | `blueprint:documentation-inversion` | Turn documentation into agent-consumable skills | Library/module documentation |
 
 ### Integration with Existing Skills
@@ -236,11 +236,11 @@ Blueprint works **with** existing skills, not as a replacement:
    └── prompts/        # DABI pipeline prompts
    ```
 
-2. **Write blueprints** from your reference materials (see `blueprint:blueprint-writing`)
-3. **Generate plans** from blueprints (see `blueprint:prompt-pipeline`)
-4. **Implement** with validation gates (see `blueprint:validation-first`)
-5. **Track progress** in implementation documents (see `blueprint:impl-tracking`)
-6. **Iterate** — when gaps are found, revise blueprints (see `blueprint:revision`)
+2. **Write blueprints** from your reference materials (see `bp:blueprint-writing`)
+3. **Generate plans** from blueprints (see `bp:prompt-pipeline`)
+4. **Implement** with validation gates (see `bp:validation-first`)
+5. **Track progress** in implementation documents (see `bp:impl-tracking`)
+6. **Iterate** — when gaps are found, revise blueprints (see `bp:revision`)
 
 ### For an Existing Project (Brownfield)
 

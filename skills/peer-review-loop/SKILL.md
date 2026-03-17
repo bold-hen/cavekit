@@ -57,16 +57,16 @@ your implementation.
 
 ```bash
 # Basic: implement a blueprint with peer review
-/blueprint:peer-review-loop context/blueprints/blueprint-auth.md
+/bp:peer-review-loop context/blueprints/blueprint-auth.md
 
 # With options
-/blueprint:peer-review-loop context/blueprints/blueprint-api.md --max-iterations 20 --codex-model gpt-5.4-mini
+/bp:peer-review-loop context/blueprints/blueprint-api.md --max-iterations 20 --codex-model gpt-5.4-mini
 
 # Review-only mode (review existing code, don't build new)
-/blueprint:peer-review-loop context/blueprints/blueprint-api.md --review-only
+/bp:peer-review-loop context/blueprints/blueprint-api.md --review-only
 
 # Review every iteration instead of every 2nd
-/blueprint:peer-review-loop context/blueprints/blueprint-auth.md --review-interval 1
+/bp:peer-review-loop context/blueprints/blueprint-auth.md --review-interval 1
 ```
 
 ---
@@ -108,8 +108,8 @@ code diff, Codex returns findings.
 Use `--codex-model` to specify which OpenAI model Codex should use:
 
 ```bash
-/blueprint:peer-review-loop blueprint.md --codex-model gpt-5.4-mini    # faster, cheaper
-/blueprint:peer-review-loop blueprint.md --codex-model gpt-5.4          # default, most capable
+/bp:peer-review-loop blueprint.md --codex-model gpt-5.4-mini    # faster, cheaper
+/bp:peer-review-loop blueprint.md --codex-model gpt-5.4          # default, most capable
 ```
 
 ---
@@ -202,7 +202,7 @@ The peer review loop has converged when:
 If the loop hits max iterations without converging:
 - Check `context/peer-review-findings.md` for persistent issues
 - Consider whether the blueprint needs clarification
-- Run `/blueprint:revise` to trace issues back to blueprints
+- Run `/bp:revise` to trace issues back to blueprints
 
 ---
 

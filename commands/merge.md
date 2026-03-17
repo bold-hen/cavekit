@@ -1,5 +1,5 @@
 ---
-name: blueprint-merge
+name: bp-merge
 description: "Merge completed Blueprint branches into main — resolves conflicts intelligently using blueprints and implementation context"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---

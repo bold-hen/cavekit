@@ -462,8 +462,8 @@ Track your brownfield adoption progress with these milestones:
 
 ## Cross-References
 
-- **Context architecture:** See `blueprint:context-architecture` skill for the full context directory structure and progressive disclosure patterns.
-- **Prompt pipeline:** See `blueprint:prompt-pipeline` skill for designing the 001-003 prompts after bootstrap.
-- **Blueprint writing:** See `blueprint:blueprint-writing` skill for how to write high-quality blueprints with testable acceptance criteria.
-- **Revision:** See `blueprint:revision` skill for tracing bugs back to blueprints after brownfield adoption.
-- **Convergence monitoring:** See `blueprint:convergence-monitoring` skill for detecting when the bootstrap prompt has converged.
+- **Context architecture:** See `bp:context-architecture` skill for the full context directory structure and progressive disclosure patterns.
+- **Prompt pipeline:** See `bp:prompt-pipeline` skill for designing the 001-003 prompts after bootstrap.
+- **Blueprint writing:** See `bp:blueprint-writing` skill for how to write high-quality blueprints with testable acceptance criteria.
+- **Revision:** See `bp:revision` skill for tracing bugs back to blueprints after brownfield adoption.
+- **Convergence monitoring:** See `bp:convergence-monitoring` skill for detecting when the bootstrap prompt has converged.

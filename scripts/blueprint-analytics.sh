@@ -46,7 +46,7 @@ for wt in "${PROJECT_ROOT}/../${PROJECT_NAME}-blueprint-"*; do
 done
 
 if [[ ${#LOGS[@]} -eq 0 ]]; then
-  echo "No loop logs found. Run /blueprint:build first."
+  echo "No loop logs found. Run /bp:build first."
   exit 0
 fi
 

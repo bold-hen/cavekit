@@ -162,7 +162,7 @@ fi
 
 if [[ ${#CANDIDATES[@]} -eq 0 ]]; then
   echo "❌ No build site found in context/frontiers/" >&2
-  echo "   Run /blueprint:architect first to generate one." >&2
+  echo "   Run /bp:architect first to generate one." >&2
   # Also check context/plans/ as a hint
   if [[ -d "context/plans" ]] && find "context/plans" -name "*frontier*" -type f 2>/dev/null | grep -q .; then
     echo "   (Found frontier files in context/plans/ — move them to context/frontiers/)" >&2

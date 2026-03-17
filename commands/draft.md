@@ -1,5 +1,5 @@
 ---
-name: blueprint-draft
+name: bp-draft
 description: "Write blueprints: decompose what you're building into domains with testable requirements"
 argument-hint: "[REFS_PATH | --from-code] [--filter PATTERN]"
 ---
@@ -158,7 +158,7 @@ last_edited: "{CURRENT_DATE_UTC}"
 - {anything that couldn't be fully specified}
 
 ### Next Step
-Run `/blueprint:architect` to generate the build site.
+Run `/bp:architect` to generate the build site.
 ```
 
 Present the report to the user.

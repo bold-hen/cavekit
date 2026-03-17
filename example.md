@@ -3,7 +3,7 @@
 ## Greenfield: Task management API
 
 ```
-user: /blueprint:draft
+user: /bp:draft
 
 claude: What are you building?
 
@@ -19,9 +19,9 @@ claude: Decomposing into domains...
       - blueprint-notifications.md (3 requirements, 8 acceptance criteria)
 
       Dependency order: users → projects → tasks → notifications
-      Next: /blueprint:architect
+      Next: /bp:architect
 
-user: /blueprint:architect
+user: /bp:architect
 
 claude: Reading 4 blueprints, 22 requirements...
 
@@ -32,9 +32,9 @@ claude: Reading 4 blueprints, 22 requirements...
       - Tier 3: Task CRUD, assignments (10 tasks)
       - Tier 4: Notifications (8 tasks)
 
-      Next: /blueprint:build
+      Next: /bp:build
 
-user: /blueprint:build
+user: /bp:build
 
 claude: Loop activated! 34 tasks, 20 max iterations.
 
@@ -57,7 +57,7 @@ claude: Loop activated! 34 tasks, 20 max iterations.
 ## Brownfield: Adding collaboration to existing Next.js app
 
 ```
-user: /blueprint:draft --from-code
+user: /bp:draft --from-code
 
 claude: Exploring codebase... Next.js 14, Prisma, NextAuth.
 
@@ -72,7 +72,7 @@ claude: Exploring codebase... Next.js 14, Prisma, NextAuth.
       4 requirements are gaps (not yet implemented).
 
 user: I only want the collaboration features.
-      /blueprint:architect --filter collaboration
+      /bp:architect --filter collaboration
 
 claude: Reading blueprint-collaboration.md (3 requirements)...
 
@@ -81,7 +81,7 @@ claude: Reading blueprint-collaboration.md (3 requirements)...
       - Tier 1: Cursor presence, CRDT integration
       - Tier 2: Conflict resolution, live sync
 
-user: /blueprint:build --filter collaboration
+user: /bp:build --filter collaboration
 
 claude: Loop activated! 8 tasks.
 
@@ -93,8 +93,8 @@ claude: Loop activated! 8 tasks.
       All done. <promise>BLUEPRINT COMPLETE</promise>
 
 user: Now notifications with peer review.
-      /blueprint:architect --filter notifications
-      /blueprint:build --filter notifications --peer-review
+      /bp:architect --filter notifications
+      /bp:build --filter notifications --peer-review
 
 claude: Archived previous cycle → context/impl/archive/20260314-201500/
       Configured Codex (gpt-5.4) as peer reviewer.
@@ -116,7 +116,7 @@ claude: Archived previous cycle → context/impl/archive/20260314-201500/
 ## The flow
 
 ```
-/blueprint:draft      →  blueprints
-/blueprint:architect  →  build site
-/blueprint:build      →  code
+/bp:draft      →  blueprints
+/bp:architect  →  build site
+/bp:build      →  code
 ```
