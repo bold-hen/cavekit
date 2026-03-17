@@ -53,3 +53,11 @@
 - **Files:** internal/frontier/discovery.go, internal/frontier/discovery_test.go
 - **Validation:** Build P, Tests 4/4 P, Acceptance 5/5
 - **Next:** T-006 — Frontier markdown parsing
+
+### Iteration 8 — 2026-03-17
+- **Task:** T-006 — Frontier markdown parsing (tasks, tiers, table rows)
+- **Tier:** 0
+- **Status:** DONE
+- **Files:** internal/frontier/parser.go, internal/frontier/parser_test.go
+- **Validation:** Build P, Tests 7/7 P, Acceptance 4/4
+- **Next:** T-011 — Tmux input injection (Tier 1, unblocks T-020, T-022)
