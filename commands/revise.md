@@ -9,7 +9,13 @@ You are performing revision: tracing recent manual code changes back into bluepr
 
 ## Step 1: Analyze Recent Commits
 
-Run `git log --oneline -20` (or since the last convergence loop run) to gather recent commits. Read the diffs for each commit.
+Determine the revision range:
+1. Read each blueprint's `## Changelog` section for the most recent entry's commit SHAs
+2. Use the newest commit SHA across all blueprints as the "since" marker
+3. If no changelog entries exist in any blueprint, fall back to `git log --oneline -20`
+4. Run `git log --oneline <since>..HEAD` to gather commits since last revision
+
+Read the diffs for each commit.
 
 Classify each commit into one of three categories:
 
@@ -47,7 +53,20 @@ For each manual fix, update the appropriate context files:
 ### Blueprint Updates (context/blueprints/)
 - If the fix reveals a missing requirement, add it with testable acceptance criteria
 - If the fix reveals an ambiguous requirement, clarify it
-- Add a `## Revised` section or annotation noting the source commit
+- Update the `last_edited` frontmatter date to today's date
+- **Append a changelog entry** to the blueprint's `## Changelog` section:
+
+```markdown
+### {YYYY-MM-DD} — Revision
+- **Affected:** R{n}, R{m}
+- **Summary:** {what changed and why}
+- **Commits:** {short SHA(s) that drove this change}
+```
+
+Changelog rules:
+- Entries are **append-only** — never modify or remove existing entries
+- The requirements section must contain only current-state descriptions (no "was previously X")
+- History lives exclusively in the changelog
 
 ### Plan Updates (context/plans/)
 - If the plan missed a task, add it with proper T- prefix and dependencies

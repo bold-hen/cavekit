@@ -171,6 +171,8 @@ last_edited: "{CURRENT_DATE_UTC}"
 
 ## Cross-References
 - See also: blueprint-{related-domain}.md
+
+## Changelog
 ```
 
 If `--filter` is set, only generate blueprints for domains matching the filter pattern.
