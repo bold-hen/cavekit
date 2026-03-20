@@ -10,3 +10,6 @@ last_edited: "2026-03-20T00:00:00Z"
 | T-006 | DONE | Merge result logging included in T-004 (up-to-date or merged with output summary) |
 | T-007 | DONE | Forward .env* files via symlinks on worktree creation and reuse |
 | T-008 | DONE | Symlink verification runs on every build start — broken symlinks are re-created |
+| T-011 | DONE | Recovery detection on build start (surfaces branch, last commit, diff stats). Resume proceeds through merge+env. --abandon flag for cleanup. |
+| T-012 | DONE | --abandon flag removes worktree (force), prunes, deletes branch |
+| T-013 | DONE | Resume flow cleans stale ralph-loop state then proceeds through normal merge (R1) + env verify (R2) path |

@@ -10,6 +10,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 FILTER=""
 PEER_REVIEW=false
+ABANDON=false
 MAX_ITERATIONS=20
 COMPLETION_PROMISE="BLUEPRINT COMPLETE"
 CODEX_MODEL="gpt-5.4"
@@ -30,6 +31,7 @@ OPTIONS:
   --codex-model <model>          Codex model (default: gpt-5.4)
   --review-interval <n>          Review every Nth iteration (default: 2)
   --max-iterations <n>           Max iterations (default: 20)
+  --abandon                      Remove worktree and branch for the filtered build
   --completion-promise '<text>'  Completion phrase (default: "BLUEPRINT COMPLETE")
   -h, --help                     Show this help
 
@@ -38,6 +40,7 @@ EXAMPLES:
   /blueprint build --filter v2
   /blueprint build --peer-review
   /blueprint build --peer-review --max-iterations 30
+  /blueprint build --filter v2 --abandon
 HELP_EOF
       exit 0
       ;;
@@ -48,6 +51,10 @@ HELP_EOF
       ;;
     --peer-review)
       PEER_REVIEW=true
+      shift
+      ;;
+    --abandon)
+      ABANDON=true
       shift
       ;;
     --codex-model)
@@ -100,6 +107,44 @@ if [[ "$IS_WORKTREE" == "false" ]]; then
   WT_NAME="${FILTER:-build}"
   WT_PATH="${PROJECT_ROOT}/../${PROJECT_NAME}-blueprint-${WT_NAME}"
   BRANCH_NAME="blueprint/${WT_NAME}"
+
+  # ─── Abandon mode (R3: Failure Recovery — option b) ──────────────────
+  if [[ "$ABANDON" == "true" ]]; then
+    if [[ -d "$WT_PATH" ]]; then
+      echo "🗑️  Abandoning worktree: $WT_PATH"
+      git worktree remove --force "$WT_PATH" 2>/dev/null || rm -rf "$WT_PATH"
+      git worktree prune 2>/dev/null || true
+      # Delete branch if it exists and has no remote tracking
+      if git rev-parse --verify "$BRANCH_NAME" &>/dev/null; then
+        git branch -D "$BRANCH_NAME" 2>/dev/null || true
+        echo "🗑️  Deleted branch: $BRANCH_NAME"
+      fi
+      echo "✅ Worktree and branch cleaned up"
+    else
+      echo "ℹ️  No worktree found at $WT_PATH — nothing to abandon"
+    fi
+    exit 0
+  fi
+
+  # ─── Recovery detection (R3: Failure Recovery) ──────────────────────────
+  # If worktree exists with stale ralph-loop state, a previous build was
+  # interrupted. Surface state and options to the user.
+  if [[ -d "$WT_PATH" ]] && [[ -f "$WT_PATH/.claude/ralph-loop.local.md" ]]; then
+    # Extract last commit info from worktree
+    WT_LAST_COMMIT=$(cd "$WT_PATH" && git log --oneline -1 2>/dev/null || echo "unknown")
+    WT_DIFF_STAT=$(cd "$WT_PATH" && git diff --stat "main...HEAD" 2>/dev/null | tail -1 || echo "no changes")
+    WT_BRANCH=$(cd "$WT_PATH" && git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "$BRANCH_NAME")
+
+    echo "⚠️  Previous build session detected in worktree" >&2
+    echo "" >&2
+    echo "   Branch:      $WT_BRANCH" >&2
+    echo "   Last commit:  $WT_LAST_COMMIT" >&2
+    echo "   Diff stats:   $WT_DIFF_STAT" >&2
+    echo "" >&2
+    echo "   Resuming build (merge main + verify env before restart)..." >&2
+    # Clean stale ralph-loop state so a fresh loop starts
+    rm -f "$WT_PATH/.claude/ralph-loop.local.md"
+  fi
 
   if [[ -d "$WT_PATH" ]]; then
     echo "📂 Using existing worktree: $WT_PATH"

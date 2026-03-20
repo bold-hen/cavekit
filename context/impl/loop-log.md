@@ -29,4 +29,12 @@
 - **Status:** DONE
 - **Files:** commands/revise.md
 - **Validation:** Build P, Acceptance: requirement mapping via build site tracing P, unaffected reqs untouched P, cross-blueprint moves P, since-last-revision from changelog P
-- **Next:** T-011 — Present recovery options on build failure
+- **Next:** T-011, T-012, T-013
+
+### Iteration 5 — 2026-03-20
+- **Task:** T-011 (recovery options), T-012 (abandon cleanup), T-013 (resume flow)
+- **Tier:** 1
+- **Status:** DONE
+- **Files:** scripts/setup-build.sh
+- **Validation:** Build P, Tests P (syntax), Acceptance: recovery detection with state display P, --abandon flag P, resume re-runs merge+env P
+- **Next:** T-014 — Update blueprint-overview.md after revision
