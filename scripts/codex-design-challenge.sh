@@ -337,6 +337,185 @@ Environment:
 EOF
 }
 
+# ── T-305: Auto-Fix and Re-Challenge Loop ─────────────────────────────
+# Orchestrates the challenge-fix-rechallenge cycle.
+#
+# Arguments:
+#   --blueprints-dir <path>  Blueprint directory
+#   --max-cycles <N>         Maximum challenge-fix cycles (default: 2)
+#
+# Returns:
+#   0 — no critical issues remain
+#   1 — critical issues remain after max cycles (advisory + remaining criticals printed)
+#   2 — Codex unavailable (skip)
+#
+# The caller (draft flow) is responsible for implementing fixes between cycles.
+# This function outputs AWAITING_FIXES when fixes are needed, along with the
+# critical findings in structured format for the caller to process.
+
+bp_design_challenge_cycle() {
+  local blueprints_dir="${PROJECT_ROOT}/context/blueprints"
+  local max_cycles=2
+  local cycle=0
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --blueprints-dir) blueprints_dir="$2"; shift 2 ;;
+      --max-cycles) max_cycles="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+
+  while (( cycle < max_cycles )); do
+    cycle=$((cycle + 1))
+    echo "[bp:design-challenge] Challenge cycle ${cycle}/${max_cycles}"
+
+    # Run the challenge
+    local challenge_output
+    challenge_output="$(bp_design_challenge --blueprints-dir "$blueprints_dir" 2>&1)"
+    local rc=$?
+
+    echo "$challenge_output"
+
+    case $rc in
+      0)
+        # No critical issues — collect advisory for user display
+        echo "[bp:design-challenge] Cycle ${cycle}: No critical issues."
+        return 0
+        ;;
+      2)
+        # Codex unavailable
+        return 2
+        ;;
+      1)
+        # Critical issues found — need fixes
+        # Re-parse the raw findings from the challenge output
+        local table_lines
+        table_lines="$(echo "$challenge_output" | sed -n '/=== Design Challenge Findings ===/,/=== End of Findings ===/p' | grep -E '^\|' | grep -vE '^\| Category' | grep -vE '^\|--')"
+
+        if [[ -z "$table_lines" ]]; then
+          echo "[bp:design-challenge] Could not extract findings from output."
+          return 1
+        fi
+
+        # Parse into our structured format
+        local parsed=""
+        while IFS= read -r row; do
+          local cat sev bp req desc
+          cat="$(echo "$row" | awk -F'|' '{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $2); print $2}')"
+          sev="$(echo "$row" | awk -F'|' '{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $3); print $3}')"
+          bp="$(echo "$row" | awk -F'|' '{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $4); print $4}')"
+          req="$(echo "$row" | awk -F'|' '{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $5); print $5}')"
+          desc="$(echo "$row" | awk -F'|' '{gsub(/^[[:space:]]+|[[:space:]]+$/, "", $6); print $6}')"
+          parsed+="${cat}|${sev}|${bp}|${req}|${desc}"$'\n'
+        done <<< "$table_lines"
+
+        bp_collect_challenge_findings "$parsed"
+
+        if [[ $_BP_CHALLENGE_CRITICAL_COUNT -eq 0 ]]; then
+          echo "[bp:design-challenge] Cycle ${cycle}: Only advisory findings remain."
+          return 0
+        fi
+
+        if (( cycle < max_cycles )); then
+          echo "[bp:design-challenge] ${_BP_CHALLENGE_CRITICAL_COUNT} critical finding(s) need fixes."
+          echo "CRITICAL_FIXES:"
+          bp_format_critical_for_fix
+          echo "AWAITING_FIXES"
+          # Caller implements fixes and re-runs the cycle
+          return 3  # Signal: fixes needed
+        fi
+        ;;
+    esac
+  done
+
+  # Exhausted max cycles — report remaining
+  echo "[bp:design-challenge] WARNING: ${_BP_CHALLENGE_CRITICAL_COUNT} critical finding(s) remain after ${max_cycles} cycles."
+  echo "[bp:design-challenge] Presenting remaining findings to user for judgment."
+
+  if [[ -n "${_BP_CHALLENGE_CRITICAL_FINDINGS:-}" ]]; then
+    echo ""
+    echo "### Remaining Critical Findings (require user judgment)"
+    echo ""
+    echo "| Category | Blueprint | Requirement | Finding |"
+    echo "|----------|-----------|-------------|---------|"
+    while IFS='|' read -r cat sev bp req desc; do
+      [[ -z "$cat" ]] && continue
+      echo "| $cat | $bp | $req | $desc |"
+    done <<< "$_BP_CHALLENGE_CRITICAL_FINDINGS"
+  fi
+
+  if [[ -n "${_BP_CHALLENGE_ADVISORY_FINDINGS:-}" ]]; then
+    bp_format_advisory_for_user
+  fi
+
+  return 1
+}
+
+# ── T-306: Draft Flow Integration Point ───────────────────────────────
+# Entry point for the /bp:draft command to call after Step 8 (blueprint-reviewer).
+# Runs the design challenge and returns results for insertion before Step 9 (user gate).
+#
+# Arguments:
+#   --blueprints-dir <path>  Blueprint directory
+#
+# Output:
+#   Sets BP_CHALLENGE_ADVISORY_OUTPUT — markdown text to show user at Step 9
+#   Sets BP_CHALLENGE_DURATION — seconds the challenge took
+#
+# Returns:
+#   0 — challenge passed (clean or advisory-only), proceed to user gate
+#   1 — critical issues remain after auto-fix, user must decide
+#   2 — skipped (Codex unavailable), proceed to user gate without challenge
+
+bp_draft_challenge_hook() {
+  local blueprints_dir="${PROJECT_ROOT}/context/blueprints"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --blueprints-dir) blueprints_dir="$2"; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+
+  BP_CHALLENGE_ADVISORY_OUTPUT=""
+  BP_CHALLENGE_DURATION=0
+
+  local start_time
+  start_time="$(date +%s)"
+
+  echo "[bp:draft] Running Codex design challenge..."
+
+  local result
+  result="$(bp_design_challenge_cycle --blueprints-dir "$blueprints_dir" 2>&1)"
+  local rc=$?
+
+  local end_time
+  end_time="$(date +%s)"
+  BP_CHALLENGE_DURATION=$((end_time - start_time))
+
+  echo "$result"
+
+  case $rc in
+    0)
+      # Collect any advisory findings for user gate
+      BP_CHALLENGE_ADVISORY_OUTPUT="$(bp_format_advisory_for_user 2>/dev/null || true)"
+      echo "[bp:draft] Design challenge passed (${BP_CHALLENGE_DURATION}s)."
+      return 0
+      ;;
+    2)
+      echo "[bp:draft] Design challenge skipped — Codex unavailable (${BP_CHALLENGE_DURATION}s)."
+      return 2
+      ;;
+    *)
+      # Critical findings remain — let caller decide
+      BP_CHALLENGE_ADVISORY_OUTPUT="$(bp_format_advisory_for_user 2>/dev/null || true)"
+      echo "[bp:draft] Design challenge has unresolved critical findings (${BP_CHALLENGE_DURATION}s)."
+      return 1
+      ;;
+  esac
+}
+
 # ── CLI mode ──────────────────────────────────────────────────────────
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
