@@ -194,6 +194,25 @@ If new requirements were added to blueprints, add corresponding tasks to the sit
 4. Update the `last_edited` date in frontmatter
 5. Update the summary table at the bottom
 
+### Restore Archived Impl Tracking
+
+If the verdict is **REVISE** or **REJECT** and `context/impl/` has no `impl-*.md` files (they were archived by a previous `/bp:build` run), restore them so the next build cycle knows which tasks are already done:
+
+1. Find the most recent archive: `ls -td context/impl/archive/*/ 2>/dev/null | head -1`
+2. If found, copy all `impl-*.md` files (NOT `loop-log.md` or `peer-review-findings.md`) back to `context/impl/`:
+   ```bash
+   LATEST_ARCHIVE=$(ls -td context/impl/archive/*/ 2>/dev/null | head -1)
+   if [[ -n "$LATEST_ARCHIVE" ]]; then
+     for f in "$LATEST_ARCHIVE"/impl-*.md; do
+       [[ -f "$f" ]] && cp "$f" context/impl/
+     done
+     echo "♻️  Restored impl tracking from $LATEST_ARCHIVE"
+   fi
+   ```
+3. Report the restoration to the user
+
+This ensures the next `/bp:build` cycle can compute the correct frontier (skipping already-done tasks).
+
 ### Update Impl Tracking
 
 For each peer review finding (bugs, security, performance):

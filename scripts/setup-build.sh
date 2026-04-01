@@ -14,6 +14,7 @@ MAX_ITERATIONS=20
 COMPLETION_PROMISE="BLUEPRINT COMPLETE"
 CODEX_MODEL="gpt-5.4"
 REVIEW_INTERVAL=2
+EXPLICIT_FILE=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -22,7 +23,11 @@ while [[ $# -gt 0 ]]; do
 Blueprint Build — Run the implementation loop
 
 USAGE:
-  /blueprint build [OPTIONS]
+  /blueprint build [FILE] [OPTIONS]
+
+ARGUMENTS:
+  FILE                           Path to build site file (optional)
+                                 Accepts @path or plain path (@ prefix is stripped)
 
 OPTIONS:
   --filter <pattern>             Scope to blueprints/build site matching pattern
@@ -35,8 +40,9 @@ OPTIONS:
 
 EXAMPLES:
   /blueprint build
+  /blueprint build context/plans/build-site.md
+  /blueprint build @context/sites/build-site-v2.md
   /blueprint build --filter v2
-  /blueprint build --peer-review
   /blueprint build --peer-review --max-iterations 30
 HELP_EOF
       exit 0
@@ -71,9 +77,24 @@ HELP_EOF
       COMPLETION_PROMISE="$2"
       shift 2
       ;;
-    *)
-      echo "❌ Unexpected argument: $1" >&2
+    -*)
+      echo "❌ Unknown option: $1" >&2
       exit 1
+      ;;
+    *)
+      # Positional argument: treat as explicit file path
+      # Strip leading @ (Claude Code convention)
+      arg="${1#@}"
+      if [[ -n "$EXPLICIT_FILE" ]]; then
+        echo "❌ Unexpected argument: $1 (file already set to $EXPLICIT_FILE)" >&2
+        exit 1
+      fi
+      if [[ ! -f "$arg" ]]; then
+        echo "❌ File not found: $arg" >&2
+        exit 1
+      fi
+      EXPLICIT_FILE="$arg"
+      shift
       ;;
   esac
 done
@@ -95,6 +116,17 @@ rm -f .claude/ralph-loop.local.md
 FRONTIER_FILE=""
 ALL_CANDIDATES=()
 SITE_DIR=""
+
+# ─── Explicit file path bypasses discovery ─────────────────────────────────
+
+if [[ -n "$EXPLICIT_FILE" ]]; then
+  FRONTIER_FILE="$EXPLICIT_FILE"
+  echo "📋 Build site: $FRONTIER_FILE"
+fi
+
+# ─── Discovery (only if no explicit file) ──────────────────────────────────
+
+if [[ -z "$FRONTIER_FILE" ]]; then
 
 for candidate_dir in "context/plans" "context/sites"; do
   if [[ -d "$candidate_dir" ]]; then
@@ -153,11 +185,41 @@ else
     task_count=$(grep -cE '\|\s*T-([A-Za-z0-9]+-)*[0-9]+\s*\|' "$f" 2>/dev/null || echo "?")
     done_count=0
     if [[ -d "context/impl" ]]; then
-      for task_id in $(grep -oE 'T-([A-Za-z0-9]+-)*[0-9]+' "$f" 2>/dev/null | sort -u); do
-        if grep -rlq "$task_id.*DONE\|DONE.*$task_id" context/impl/ 2>/dev/null; then
-          done_count=$((done_count + 1))
+      # Find impl files scoped to this build site (have "Build site: <path>" line)
+      SCOPED_IMPL_FILES=()
+      UNSCOPED_IMPL_FILES=()
+      for impl_f in context/impl/impl-*.md; do
+        [[ ! -f "$impl_f" ]] && continue
+        declared_site=$(sed -n 's/^Build site:[[:space:]]*\([^[:space:]]*\).*/\1/p' "$impl_f" 2>/dev/null | head -1)
+        if [[ -n "$declared_site" ]]; then
+          # Impl file declares a build site — only include if it matches this candidate
+          if [[ "$declared_site" == "$f" || "$(basename "$declared_site")" == "$(basename "$f")" ]]; then
+            SCOPED_IMPL_FILES+=("$impl_f")
+          fi
+          # else: declared for a different site, skip entirely
+        else
+          UNSCOPED_IMPL_FILES+=("$impl_f")
         fi
       done
+      # Search scoped files first; fall back to unscoped only if no scoped files exist
+      SEARCH_FILES=("${SCOPED_IMPL_FILES[@]+"${SCOPED_IMPL_FILES[@]}"}")
+      if [[ ${#SEARCH_FILES[@]} -eq 0 ]]; then
+        SEARCH_FILES=("${UNSCOPED_IMPL_FILES[@]+"${UNSCOPED_IMPL_FILES[@]}"}")
+      fi
+      if [[ ${#SEARCH_FILES[@]} -gt 0 ]]; then
+        for task_id in $(grep -oE 'T-([A-Za-z0-9]+-)*[0-9]+' "$f" 2>/dev/null | sort -u); do
+          for impl_f in "${SEARCH_FILES[@]}"; do
+            if grep -qE "(\b${task_id}\b.*DONE|DONE.*\b${task_id}\b)" "$impl_f" 2>/dev/null; then
+              done_count=$((done_count + 1))
+              break  # count each task only once
+            fi
+          done
+        done
+      fi
+      # Safety cap: done can't exceed total
+      if [[ "$task_count" =~ ^[0-9]+$ ]] && [[ $done_count -gt $task_count ]]; then
+        done_count=$task_count
+      fi
     fi
     echo "  ${IDX}. $(basename "$f") — ${done_count}/${task_count} tasks done"
     IDX=$((IDX + 1))
@@ -170,7 +232,13 @@ fi
 
 echo "📋 Build site: $FRONTIER_FILE"
 
+fi  # end discovery block (skipped when EXPLICIT_FILE is set)
+
 # ─── Auto-archive previous cycle ────────────────────────────────────────────
+#
+# Only archive if ALL tasks in the selected build site are DONE in impl tracking.
+# If incomplete tasks remain (e.g. after inspect added new tasks), keep impl files
+# so the next build cycle knows what's already done.
 
 ARCHIVE_COUNT=0
 if [[ -d "context/impl" ]]; then
@@ -181,18 +249,58 @@ if [[ -d "context/impl" ]]; then
   done
 
   if [[ "$HAS_OLD" == "true" ]]; then
-    ARCHIVE_DIR="context/impl/archive/$(date -u +%Y%m%d-%H%M%S)"
-    mkdir -p "$ARCHIVE_DIR"
+    # Check if the build site still has incomplete tasks (scoped to relevant impl files)
+    SHOULD_ARCHIVE=true
+    if [[ -n "$FRONTIER_FILE" && -f "$FRONTIER_FILE" ]]; then
+      # Find impl files associated with this build site
+      ARCHIVE_CHECK_FILES=()
+      ARCHIVE_UNSCOPED_FILES=()
+      for impl_f in context/impl/impl-*.md; do
+        [[ ! -f "$impl_f" ]] && continue
+        declared_site=$(sed -n 's/^Build site:[[:space:]]*\([^[:space:]]*\).*/\1/p' "$impl_f" 2>/dev/null | head -1)
+        if [[ -n "$declared_site" ]]; then
+          if [[ "$declared_site" == "$FRONTIER_FILE" || "$(basename "$declared_site")" == "$(basename "$FRONTIER_FILE")" ]]; then
+            ARCHIVE_CHECK_FILES+=("$impl_f")
+          fi
+        else
+          ARCHIVE_UNSCOPED_FILES+=("$impl_f")
+        fi
+      done
+      CHECK_FILES=("${ARCHIVE_CHECK_FILES[@]+"${ARCHIVE_CHECK_FILES[@]}"}")
+      if [[ ${#CHECK_FILES[@]} -eq 0 ]]; then
+        CHECK_FILES=("${ARCHIVE_UNSCOPED_FILES[@]+"${ARCHIVE_UNSCOPED_FILES[@]}"}")
+      fi
+      for task_id in $(grep -oE 'T-([A-Za-z0-9]+-)*[0-9]+' "$FRONTIER_FILE" 2>/dev/null | sort -u); do
+        FOUND_DONE=false
+        for impl_f in "${CHECK_FILES[@]+"${CHECK_FILES[@]}"}"; do
+          if grep -qE "(\b${task_id}\b.*DONE|DONE.*\b${task_id}\b)" "$impl_f" 2>/dev/null; then
+            FOUND_DONE=true
+            break
+          fi
+        done
+        if [[ "$FOUND_DONE" == "false" ]]; then
+          SHOULD_ARCHIVE=false
+          break
+        fi
+      done
+    fi
 
-    for f in context/impl/loop-log.md context/impl/peer-review-findings.md context/peer-review-findings.md; do
-      [[ -f "$f" ]] && mv "$f" "$ARCHIVE_DIR/" && ARCHIVE_COUNT=$((ARCHIVE_COUNT + 1))
-    done
-    for f in context/impl/impl-*.md; do
-      [[ -f "$f" ]] && [[ "$(basename "$f")" != "CLAUDE.md" ]] && mv "$f" "$ARCHIVE_DIR/" && ARCHIVE_COUNT=$((ARCHIVE_COUNT + 1))
-    done
+    if [[ "$SHOULD_ARCHIVE" == "true" ]]; then
+      ARCHIVE_DIR="context/impl/archive/$(date -u +%Y%m%d-%H%M%S)"
+      mkdir -p "$ARCHIVE_DIR"
 
-    if [[ $ARCHIVE_COUNT -gt 0 ]]; then
-      echo "📦 Archived $ARCHIVE_COUNT files from previous cycle → $ARCHIVE_DIR/"
+      for f in context/impl/loop-log.md context/impl/peer-review-findings.md context/peer-review-findings.md; do
+        [[ -f "$f" ]] && mv "$f" "$ARCHIVE_DIR/" && ARCHIVE_COUNT=$((ARCHIVE_COUNT + 1))
+      done
+      for f in context/impl/impl-*.md; do
+        [[ -f "$f" ]] && [[ "$(basename "$f")" != "CLAUDE.md" ]] && mv "$f" "$ARCHIVE_DIR/" && ARCHIVE_COUNT=$((ARCHIVE_COUNT + 1))
+      done
+
+      if [[ $ARCHIVE_COUNT -gt 0 ]]; then
+        echo "📦 Archived $ARCHIVE_COUNT files from previous cycle → $ARCHIVE_DIR/"
+      fi
+    else
+      echo "♻️  Incomplete tasks found — keeping impl tracking from previous cycle"
     fi
   fi
 fi
@@ -331,7 +439,9 @@ unblocked task, read its blueprint, implement it, validate, commit.
 ## Read These First (every iteration)
 1. \`context/impl/loop-log.md\` — your iteration history (if exists)
 2. \`$FRONTIER_FILE\` — the task dependency graph
-3. Any \`context/impl/impl-*.md\` files — per-domain progress
+3. Impl tracking files in \`context/impl/\` — but ONLY files that are scoped to this build site.
+   An impl file is scoped if it contains \`Build site: $FRONTIER_FILE\` (or the matching basename).
+   Ignore impl files that declare a different build site. If no scoped files exist, read all impl files.
 
 ## Blueprints (read when implementing a specific requirement)
 $(echo -e "$SPEC_LISTING")
@@ -367,10 +477,16 @@ created: \"{CURRENT_DATE_UTC}\"
 last_edited: \"{CURRENT_DATE_UTC}\"
 ---
 # Implementation Tracking: {domain}
+
+Build site: $FRONTIER_FILE
+
 | Task | Status | Notes |
 |------|--------|-------|
 | T-001 | DONE | what was done |
 \`\`\`
+
+The \`Build site:\` line is REQUIRED — it scopes this impl file to the correct build site
+so task IDs don't collide across different build sites.
 
 Append to \`context/impl/loop-log.md\` (create if missing):
 

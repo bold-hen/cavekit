@@ -3,3 +3,5 @@
 .DS_Store
 /.superpowers
 /docs
+/.playwright-mcp
+current-site-full.png
