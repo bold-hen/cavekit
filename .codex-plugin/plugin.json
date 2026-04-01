@@ -17,6 +17,8 @@
     "spec-driven-development"
   ],
   "skills": "./skills/",
+  "agents": "./agents/",
+  "commands": "./commands/",
   "interface": {
     "displayName": "Blueprint",
     "shortDescription": "Blueprint-driven software delivery for coding agents",
@@ -27,6 +29,11 @@
       "Interactive",
       "Write"
     ],
+    "composerIcon": "./.codex-plugin/icon.svg",
+    "logo": "./.codex-plugin/logo.svg",
+    "screenshots": [],
+    "privacyPolicyURL": "./.codex-plugin/PRIVACY.md",
+    "termsOfServiceURL": "./.codex-plugin/TERMS.md",
     "websiteURL": "https://github.com/JuliusBrussee/sdd-os",
     "defaultPrompt": [
       "Draft blueprints for a feature from my repo context.",
