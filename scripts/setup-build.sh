@@ -101,8 +101,11 @@ for candidate_dir in "context/plans" "context/sites"; do
     while IFS= read -r -d '' f; do
       # Skip archive directory
       [[ "$f" == *"/archive/"* ]] && continue
-      # Skip non-site files (must have "site" in name)
-      [[ "$(basename "$f")" != *site* ]] && continue
+      # Skip non-buildable files (must have site, plan, or frontier in name)
+      bn="$(basename "$f")"
+      [[ "$bn" != *site* && "$bn" != *plan* && "$bn" != *frontier* ]] && continue
+      # Skip overview/index files (not buildable)
+      [[ "$bn" == *overview* ]] && continue
       ALL_CANDIDATES+=("$f")
     done < <(find "$candidate_dir" -maxdepth 1 -name "*.md" -type f -print0 2>/dev/null | sort -z)
     if [[ ${#ALL_CANDIDATES[@]} -gt 0 && -z "$SITE_DIR" ]]; then
@@ -132,7 +135,7 @@ if [[ ${#ALL_CANDIDATES[@]} -gt 0 ]]; then
 fi
 
 if [[ ${#CANDIDATES[@]} -eq 0 ]]; then
-  echo "❌ No build site found in context/plans/ or context/sites/" >&2
+  echo "❌ No build site or plan found in context/plans/ or context/sites/" >&2
   echo "   Run /bp:architect first to generate one." >&2
   exit 1
 fi

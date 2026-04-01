@@ -15,7 +15,7 @@ Run this after `/bp:build` completes (or is stopped). It does two things:
 
 Read these files to understand what happened:
 
-1. **Site** — find in `context/plans/` or `context/sites/` (apply `--filter` from `$ARGUMENTS` if set)
+1. **Site/Plan** — find in `context/plans/` or `context/sites/` (match `*site*`, `*plan*`, or `*frontier*`, exclude `*overview*`; apply `--filter` from `$ARGUMENTS` if set)
 2. **Blueprints** — all `context/blueprints/blueprint-*.md` files (apply filter)
 3. **Impl tracking** — all `context/impl/impl-*.md` files
 4. **Loop log** — `context/impl/loop-log.md`

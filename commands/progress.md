@@ -1,6 +1,6 @@
 ---
 name: bp-progress
-description: "Show progress against the build site — tasks done, in progress, blocked, remaining"
+description: "Show progress against the build site or plan — tasks done, in progress, blocked, remaining"
 argument-hint: "[--filter PATTERN]"
 ---
 
@@ -10,9 +10,9 @@ Show the user a progress report by comparing the build site against implementati
 
 ## Step 1: Find Site
 
-Look in `context/plans/` then `context/sites/` for `*site*` or `*frontier*` files. If `--filter` is set (parse from `$ARGUMENTS`), match against it.
+Look in `context/plans/` then `context/sites/` for `*site*`, `*plan*`, or `*frontier*` files (exclude `*overview*`). If `--filter` is set (parse from `$ARGUMENTS`), match against it.
 
-If no site found: "No site found. Run `/bp:architect` first."
+If no site/plan found: "No build site or plan found. Run `/bp:architect` first."
 
 ## Step 2: Read State
 

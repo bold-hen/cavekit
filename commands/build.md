@@ -1,6 +1,6 @@
 ---
 name: bp-build
-description: "Implement a build site — automatically parallelizes independent tasks and progresses through tiers autonomously"
+description: "Implement a build site or plan — automatically parallelizes independent tasks and progresses through tiers autonomously"
 argument-hint: "[--filter PATTERN] [--peer-review] [--max-iterations N] [--completion-promise TEXT]"
 allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-build.sh:*)", "Bash(git *)"]
 ---
@@ -15,7 +15,7 @@ This is the third phase of Blueprint. Execute the setup script:
 
 ## If site selection is required
 
-If the output contains `BLUEPRINT_SITE_SELECTION_REQUIRED=true`, multiple build sites were found. **Ask the user which one to implement.** Then re-run with `--filter <their-choice>`.
+If the output contains `BLUEPRINT_SITE_SELECTION_REQUIRED=true`, multiple build sites/plans were found. **Ask the user which one to implement.** Then re-run with `--filter <their-choice>`.
 
 ## Execution Loop
 
@@ -23,7 +23,7 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
 
 ### Each Wave
 
-1. **Read state**: Read the build site + all `context/impl/impl-*.md` files + `context/impl/dead-ends.md`. If this is the first wave of a new tier, capture the tier start ref: `TIER_START_REF=$(git rev-parse HEAD)`
+1. **Read state**: Read the build site/plan + all `context/impl/impl-*.md` files + `context/impl/dead-ends.md`. If this is the first wave of a new tier, capture the tier start ref: `TIER_START_REF=$(git rev-parse HEAD)`
 2. **Compute frontier**: Find all tasks that are NOT done AND whose `blockedBy` dependencies are ALL done
 3. **Report**:
    ```
