@@ -1,13 +1,5 @@
 <p align="center">
-
-```
-    ____  __    __  __ __________  ____  _____   ________
-   / __ )/ /   / / / // ____/ __ \/ __ \/  _/ | / /_  __/
-  / __  / /   / / / // __/ / /_/ / /_/ // //  |/ / / /
- / /_/ / /___/ /_/ // /___/ ____/ _, _// // /|  / / /
-/_____/_____/\____//_____/_/   /_/ |_/___/_/ |_/ /_/
-```
-
+  <img src=".codex-plugin/logo.svg" alt="Blueprint" height="80">
 </p>
 
 <h3 align="center">Specification-driven development for AI coding agents</h3>
