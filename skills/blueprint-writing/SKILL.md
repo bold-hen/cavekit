@@ -321,6 +321,25 @@ This process applies to EVERY project regardless of perceived simplicity. The de
 
 **YAGNI enforcement:** During the design conversation and blueprint generation, actively strip requirements the user did not ask for. Smaller blueprints are better blueprints.
 
+### With `bp:design-system`
+
+When DESIGN.md exists at the project root, blueprints for UI domains should reference design tokens in acceptance criteria. This creates a traceable chain: DESIGN.md -> blueprint acceptance criterion -> plan task -> implementation.
+
+| Acceptance Criterion Type | Design Reference |
+|--------------------------|-----------------|
+| "Button has primary CTA appearance" | DESIGN.md Section 4, primary button variant |
+| "Text follows heading hierarchy" | DESIGN.md Section 3, type scale |
+| "Card has subtle elevation" | DESIGN.md Section 6, elevation level 1 |
+| "Layout uses 12-column grid" | DESIGN.md Section 5, grid system |
+| "Colors adapt for dark mode" | DESIGN.md Section 2, dark mode mapping |
+
+**Do NOT duplicate DESIGN.md content into blueprints.** Reference by section/token name only. If a color changes in DESIGN.md, blueprints should not need updating.
+
+When a blueprint needs a visual pattern not yet defined in DESIGN.md, note it in the acceptance criterion:
+```markdown
+- [ ] Component uses card-like container [DESIGN.md: pattern not yet defined — flag for design update]
+```
+
 ### With `bp:validation-first`
 
 Every acceptance criterion in a blueprint must map to at least one validation gate. When writing blueprints, think about which gate will verify each requirement:

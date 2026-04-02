@@ -70,6 +70,8 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
    - Requirement IDs: {requirement_ids}
    BUILD SITE: {path to build site}
    BLUEPRINTS: {paths to relevant blueprint files}
+   DESIGN SYSTEM: {path to DESIGN.md if it exists and packet contains UI tasks, or 'None — no design system'}
+   DESIGN REFERENCES: {specific DESIGN.md sections relevant to this packet's UI tasks, or 'N/A'}
    EXPECTED FILE OWNERSHIP: {files or modules this packet should own}
 
    ACCEPTANCE CRITERIA (from blueprints):
@@ -169,6 +171,7 @@ After BUILD COMPLETE and before the completion promise, update the context hiera
      Build tasks: T-{ids} (build-site.md)
      ```
    - If `CLAUDE.md` already exists: append any new blueprint references not already listed (never remove existing content)
+   - For UI component directories: if `DESIGN.md` exists at project root, include `Visual design: follows DESIGN.md Section {N} ({section name})` in the CLAUDE.md
 4. **Update `context/impl/impl-overview.md`** with current domain statuses (tasks done/total per domain)
 5. **Update `context/plans/plan-overview.md`** (or `context/sites/` equivalent if legacy) with build site completion status
 

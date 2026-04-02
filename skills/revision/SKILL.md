@@ -55,9 +55,10 @@ git log --oneline -5
 
 This is the pivotal step. Ask: **"Where in the blueprint chain did this requirement slip through?"**
 
-Break the analysis into four dimensions:
+Break the analysis into five dimensions:
 - **WHAT** changed (files, functions, observable behavior)
 - **WHY** it was wrong (which assumption proved false)
+- **VISUAL** — does this fix change visual appearance (CSS, styling, layout)? If yes, check whether DESIGN.md covers the pattern. A missing design pattern is a design system gap that should be fixed alongside the blueprint gap.
 - **The RULE** (the invariant that should have been stated)
 - **The LAYER** (which blueprint, plan, or prompt should have contained this)
 

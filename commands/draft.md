@@ -45,6 +45,7 @@ Before asking ANY questions, understand what already exists:
 3. Check recent git commits to understand current momentum
 4. Scan the codebase structure (directory layout, key files)
 5. Check `context/refs/` for reference materials already provided
+6. Check for existing `DESIGN.md` at project root or in `context/designs/` — if present, this constrains visual design decisions for any UI-related blueprints
 
 This gives you grounding before engaging the user. Do NOT skip this even if the user has already described what they want.
 
@@ -63,6 +64,8 @@ If upcoming questions will involve visual content (UI layouts, architecture diag
 > "Some of what we're working on might be easier to explain if I can show it to you in a web browser. I can put together mockups, diagrams, comparisons, and other visuals as we go. Want to try it? (Requires opening a local URL)"
 
 Wait for the user's response. If they decline, proceed with text-only. If they accept, read `references/visual-companion.md` for the detailed guide. The server lives in `scripts/visual-companion/`.
+
+If the project has a `DESIGN.md` at the root, mention it: "I see an existing design system (DESIGN.md). I'll use it as a visual constraint for any UI-related blueprints."
 
 **Per-question decision:** Even after the user accepts, decide FOR EACH QUESTION whether to use the browser or the terminal. The test: **would the user understand this better by seeing it than reading it?**
 - **Use the browser** for: mockups, wireframes, architecture diagrams, side-by-side visual comparisons
@@ -350,6 +353,7 @@ If `--filter` is set, only generate blueprints for domains matching the filter p
 - Use R-numbered requirements (R1, R2, R3...)
 - **YAGNI** — do not add requirements the user did not ask for
 - If research was done, blueprints may reference the brief as source material: "See `context/refs/research-brief-{topic}.md` for library evaluation"
+- **Design system integration** — for blueprints containing UI requirements, acceptance criteria SHOULD reference DESIGN.md sections/tokens where applicable (e.g., "Button uses primary CTA styling from DESIGN.md Section 4"). This makes the visual contract explicit and inspectable. Do NOT duplicate DESIGN.md content — reference by section/token name only.
 
 ### Brownfield-Specific Rules
 

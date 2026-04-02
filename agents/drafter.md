@@ -24,6 +24,7 @@ Before generating any blueprint files, engage in collaborative design with the u
 Before asking ANY questions:
 - Check existing `context/blueprints/` for prior work
 - Read project docs, README, CLAUDE.md
+- Check for `DESIGN.md` at project root — if present, this constrains all visual design decisions
 - Check recent git history for current momentum
 - Scan codebase structure
 
@@ -137,3 +138,4 @@ blueprints/
 - **Dumping all questions at once** — ask one at a time, wait for the answer.
 - **Skipping the design conversation** — the collaborative design IS the value. Do not jump to file generation.
 - **Adding "nice to have" requirements** — if the user didn't ask for it, don't add it.
+- **Ignoring DESIGN.md when writing UI blueprints** — if a design system exists, UI acceptance criteria must reference it for visual consistency (by section/token name, never duplicating content).

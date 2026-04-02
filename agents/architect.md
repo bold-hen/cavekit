@@ -18,6 +18,7 @@ You are an architect for Blueprint. Your function is to transform implementation
 
 ### 1. Read Inputs
 - Read all blueprints from `blueprints/` directory, starting with `blueprint-overview.md`
+- Read `DESIGN.md` at project root if it exists — note design tokens and component patterns for UI task descriptions
 - Read any existing implementation tracking from `impl/`
 - Read any existing plans to understand what has already been planned
 - Identify the project's framework, language, and build system
@@ -130,6 +131,7 @@ Before finishing, verify:
 - **[CONDITIONAL]**: Task only executes if a condition is met (discovered during earlier tasks)
 - **[DYNAMIC]**: Task scope is determined at runtime based on earlier task outputs
 - **Effort sizing**: S (< 30 min), M (30 min - 2 hrs), L (2+ hrs, consider splitting)
+- **Design references**: For UI tasks, include `**Design Ref:** DESIGN.md Section {N}` to guide the builder
 
 ## Time Guards
 

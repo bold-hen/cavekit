@@ -63,6 +63,13 @@ For each completed task, check every acceptance criterion from the corresponding
 - Abstractions without justification in the blueprint
 - Dead code or unused infrastructure
 
+**Design System Violations** (if DESIGN.md exists at project root)
+- Hardcoded color values that should use design tokens from DESIGN.md Section 2
+- Typography that doesn't follow the defined type scale (DESIGN.md Section 3)
+- Component styling that deviates from DESIGN.md patterns (Section 4)
+- Spacing/layout values not on the defined scale (DESIGN.md Section 5)
+- Missing responsive behavior defined in DESIGN.md Section 8
+
 **Untested Paths**
 - Code paths with no test coverage
 - Error paths that are never exercised

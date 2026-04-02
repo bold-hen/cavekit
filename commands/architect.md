@@ -31,6 +31,7 @@ If `--filter` is set, only include blueprints matching the filter pattern.
 1. Read `context/blueprints/blueprint-overview.md` if it exists (for dependency graph)
 2. Read all `context/blueprints/blueprint-*.md` files (apply filter if set)
 3. Catalog every requirement (R-numbered) with its acceptance criteria and dependencies
+4. If `DESIGN.md` exists at project root, read it — note all design tokens and component patterns for use when decomposing UI requirements into tasks
 
 ## Step 3: Decompose Requirements into Tasks
 
@@ -38,6 +39,7 @@ Break each requirement into one or more implementable tasks:
 - Simple requirements (1-2 acceptance criteria) → 1 task
 - Complex requirements (3+ acceptance criteria, multiple concerns) → multiple tasks
 - Each task should be completable in one loop iteration
+- For UI tasks: include `**Design Ref:** DESIGN.md Section {N} — {section name}` in the task description to guide the builder on which design patterns apply
 
 Use T-numbered task IDs (T-001, T-002, ...) across all domains.
 

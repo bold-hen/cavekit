@@ -39,6 +39,9 @@ For each commit classified as a manual fix, determine:
    - **Plan gap**: the blueprint existed but the plan didn't implement it
    - **Prompt gap**: the plan existed but the prompt didn't guide the agent to it
    - **Validation gap**: everything existed but no test caught the regression
+5. **VISUAL** — does this fix change visual appearance (CSS, styling, layout, colors, typography)? If yes:
+   - Does `DESIGN.md` cover this pattern? If not, this is a **design system gap**
+   - If yes but the code deviated, this is a **design compliance issue**
 
 ## Step 3: Map Changes to Blueprint Requirements
 
@@ -49,6 +52,8 @@ For each manual fix, identify which blueprint requirements are affected using th
 3. **Read the build site** in `context/plans/` (or `context/sites/` for legacy projects) to map tasks → requirements → blueprints
 4. **Match changed files** to tasks in the build site (check task titles, impl tracking files, and git blame for task-ID references in commit messages)
 5. **Identify affected requirements** by tracing: changed file → CLAUDE.md → blueprint requirement → blueprint
+
+For CSS/styling/UI component changes, also check `DESIGN.md` at project root. If the fix changes colors, typography, spacing, or component appearance, trace to the relevant DESIGN.md section.
 
 For each affected requirement, record:
 | Blueprint | Requirement | Current Description | What Changed | Needs Update? |
@@ -97,6 +102,17 @@ Changelog rules:
 ### Source-Tree CLAUDE.md Updates
 - If the fix affects a module whose `CLAUDE.md` doesn't reference the relevant blueprint requirement, add the reference
 - If a new source directory was created, create a `CLAUDE.md` with the appropriate blueprint references
+
+### DESIGN.md Updates (project root)
+
+If the fix involves visual changes and `DESIGN.md` exists:
+- If the fix reveals a missing design pattern, add it to the appropriate section
+- If the fix reveals an incorrect token value, update it
+- Log all changes to `context/designs/design-changelog.md`:
+  ```markdown
+  | {date} | Section {N} | {what changed} | /bp:revise (commit {SHA}) |
+  ```
+- Update the `last_edited` frontmatter date in DESIGN.md
 
 ### Impl Tracking Updates (context/impl/)
 - Record the manual fix in the relevant impl tracking file
@@ -157,6 +173,7 @@ Generate a summary report:
 
 ### Context Files Updated
 - blueprints: {list of updated blueprint files}
+- DESIGN.md: {list of design system updates, or "no visual changes"}
 - plans: {list of updated plan files}
 - impl: {list of updated impl files}
 - CLAUDE.md: {list of source-tree CLAUDE.md files created or updated}

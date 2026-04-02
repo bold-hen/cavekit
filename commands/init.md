@@ -29,6 +29,7 @@ Create these directories if they don't exist:
 - `context/`
 - `context/refs/`
 - `context/blueprints/`
+- `context/designs/`
 - `context/plans/`
 - `context/impl/`
 - `context/impl/archive/`
@@ -47,12 +48,14 @@ This project uses Blueprint's context hierarchy.
 ## Tiers
 - refs/ — Source material (Tier 1: what IS). Read-only.
 - blueprints/ — Requirements (Tier 2: what MUST BE). Start at blueprint-overview.md.
+- designs/ — Visual design system (cross-cutting constraint). Start at DESIGN.md.
 - plans/ — Task graphs (Tier 3: HOW). Start at plan-overview.md.
 - impl/ — Progress tracking (Tier 4: what WAS DONE). Start at impl-overview.md.
 
 ## Navigation
 Start at the overview file in whichever tier is relevant to your task.
 Only load domain-specific files when the overview points you there.
+For UI work, always read DESIGN.md at the project root first.
 ```
 
 ### `context/refs/CLAUDE.md`
@@ -112,6 +115,21 @@ Impls record what was built, what is pending, what failed.
 - dead-ends.md for failed approaches (critical — prevents retrying failures)
 - archive/ for compacted history
 - Update after every implementation session
+```
+
+### `context/designs/CLAUDE.md`
+
+```markdown
+# Design System
+
+The project's visual design system in DESIGN.md format (9-section Google Stitch).
+
+## Conventions
+- DESIGN.md at project root is the canonical source
+- All UI implementation must reference DESIGN.md tokens and patterns
+- Updated via /bp:design or automatically during /bp:inspect and /bp:revise
+- Agents read this before implementing any user-facing component
+- design-changelog.md tracks all design system changes
 ```
 
 ### Source-tree CLAUDE.md files

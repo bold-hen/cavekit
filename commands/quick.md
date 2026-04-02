@@ -56,6 +56,7 @@ Silently gather context (do NOT present findings to user):
 2. Read README, CLAUDE.md if present
 3. Scan codebase structure (directory layout, key files, package.json/Cargo.toml/etc.)
 4. Check recent git commits (`git log --oneline -10`)
+5. Check for `DESIGN.md` at project root — if present, it constrains UI decisions
 
 ### 1c: Decompose and Write Blueprints
 
@@ -73,6 +74,7 @@ Using the feature description + project context, directly:
 - YAGNI — only what the user described, nothing extra
 - Prefer 1-2 domains over many — keep it tight
 - Acceptance criteria must be testable but don't over-specify
+- If DESIGN.md exists and the feature involves UI, reference design tokens in acceptance criteria
 - Skip the visual companion, skip approach proposals
 - Skip the blueprint-reviewer subagent loop — you validate inline
 - Do a single self-check: no TODOs, no placeholders, no implementation details in requirements
@@ -110,6 +112,7 @@ Read all blueprint files just written.
 - Tasks should be M-sized, not XL
 - Every requirement maps to at least one task
 - Dependencies must be genuine blockers
+- For UI tasks, include `Design Ref: DESIGN.md Section {N}` if DESIGN.md exists
 - Skip asking user about existing sites — overwrite if one exists
 
 ### 2c: Report (brief)

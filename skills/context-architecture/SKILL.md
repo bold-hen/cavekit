@@ -32,7 +32,7 @@ Each tier consumes the previous tier's output. Cross-references between tiers cr
 
 ```
 context/
-├── CLAUDE.md                              # Root entry node: describes all 4 tiers
+├── CLAUDE.md                              # Root entry node: describes all tiers + design layer
 ├── refs/                                  # Tier 1: Source material (read-only input)
 │   ├── CLAUDE.md                          # "Source of truth. Organized by source. Read-only."
 │   └── {source}/                          # Subdirs per source (e.g., prd/, api-spec/)
@@ -44,6 +44,9 @@ context/
 │   └── {domain}/                          # Complex domain gets a subdirectory
 │       ├── blueprint-{domain}.md          # Domain index (becomes hub node)
 │       └── blueprint-{domain}-{sub}.md    # Sub-domain leaves
+├── designs/                               # Cross-cutting: visual design system
+│   ├── CLAUDE.md                          # "DESIGN.md at project root is canonical."
+│   └── design-changelog.md               # Append-only change log
 ├── plans/                                 # Tier 3: HOW to build (task graphs)
 │   ├── CLAUDE.md                          # "Start at plan-overview.md. Task dependency tiers."
 │   ├── plan-overview.md                   # Index node
@@ -59,6 +62,8 @@ context/
 │   ├── dead-ends.md                       # Failed approaches (shared across domains)
 │   └── archive/                           # Compacted/archived tracking
 ```
+
+> **Note:** `designs/` is a **cross-cutting constraint layer**, not a fifth tier. DESIGN.md (at project root) is read by agents at every DABI phase — Draft reads it to constrain visual decisions, Architect references tokens in task descriptions, Build uses it for implementation, Inspect validates against it. It parallels how CLAUDE.md files provide conventions, but for visual design.
 
 ### Backward Compatibility: sites/ → plans/
 
@@ -257,6 +262,7 @@ Each framework repo includes the shared context as a submodule. Updates propagat
 | Skill | Integration |
 |-------|------------|
 | `bp:blueprint-writing` | Blueprints go in `context/blueprints/` following naming conventions |
+| `bp:design-system` | DESIGN.md lives at project root; `context/designs/` has CLAUDE.md and changelog |
 | `bp:impl-tracking` | Tracking lives in `context/impl/`, compacted when exceeding ~500 lines |
 | `bp:validation-first` | Validation results recorded in impl tracking within the hierarchy |
 | `bp:revision` | `/bp:revise` traverses CLAUDE.md edges in reverse to trace bugs to specs |

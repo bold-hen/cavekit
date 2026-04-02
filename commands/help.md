@@ -9,11 +9,12 @@ description: Show Blueprint commands and usage
 
 ```
 /bp:init        →  bootstrap context hierarchy (optional, /bp:draft does this too)
+/bp:design      →  create or update DESIGN.md (the LOOK) — import, extract, or design interactively
 /bp:research    →  deep multi-agent research (standalone, or integrated into /bp:draft)
-/bp:draft       →  write blueprints (the WHAT) — offers research if warranted
-/bp:architect   →  generate site (the ORDER)
-/bp:build       →  ralph loop (the BUILD)
-/bp:inspect     →  gap analysis + peer review (the CHECK)
+/bp:draft       →  write blueprints (the WHAT) — offers research if warranted, references DESIGN.md
+/bp:architect   →  generate site (the ORDER) — includes design refs for UI tasks
+/bp:build       →  ralph loop (the BUILD) — task builders read DESIGN.md for UI work
+/bp:inspect     →  gap analysis + peer review + design compliance (the CHECK)
 /bp:config      →  show or change execution model presets
 ```
 
@@ -70,6 +71,19 @@ Creates the full context hierarchy for a Blueprint project. Idempotent — only 
 Runs parallel multi-agent research (codebase exploration + web search) and produces a research brief in `context/refs/research-brief-{topic}.md`. Dispatches 2-8 agents depending on project size and depth. Two-pass synthesis cross-validates findings and resolves contradictions.
 
 Also integrated into `/bp:draft` — when the draft phase detects a project that would benefit from research, it offers to run the pipeline inline before design Q&A.
+
+### `/bp:design` — Create or Update DESIGN.md
+
+```bash
+/bp:design                        # interactive — collaborative design system creation
+/bp:design --import claude        # import from awesome-design-md collection
+/bp:design --import vercel        # import Vercel's design system as starting point
+/bp:design --from-site https://...  # extract design system from a live site
+/bp:design --audit                # quality check existing DESIGN.md
+/bp:design --section 2            # update just Section 2 (Color Palette)
+```
+
+Creates the project's visual design system document following the 9-section Google Stitch format. DESIGN.md becomes the authoritative visual reference that all agents consult when building UI.
 
 ### `/bp:draft` — Write Blueprints
 
@@ -179,6 +193,7 @@ These still work but are superseded by the three main commands:
 | Skill | Topic |
 |-------|-------|
 | `bp:methodology` | Core DABI lifecycle |
+| `bp:design-system` | How to write and maintain DESIGN.md (9-section Stitch format) |
 | `bp:blueprint-writing` | How to write blueprints with testable criteria |
 | `bp:peer-review` | Cross-model review patterns |
 | `bp:peer-review-loop` | Ralph Loop + Codex architecture |

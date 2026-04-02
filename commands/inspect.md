@@ -30,6 +30,7 @@ Read these files to understand what happened:
 4. **Loop log** — `context/impl/loop-log.md`
 5. **Git history** — run `git log --oneline -30` to see recent commits from the loop
 6. **Git diff** — run `git diff main...HEAD` (or appropriate base branch) to see all code changes
+7. **Design system** — read `DESIGN.md` at project root if it exists (for design compliance checking in Steps 2-3)
 
 If no impl tracking or loop log exists, tell the user:
 > No loop artifacts found. Run `/bp:build` first, then `/bp:inspect` after it completes.
@@ -52,6 +53,16 @@ For every blueprint requirement (R-numbered) and its acceptance criteria, determ
 - For each acceptance criterion, find the code that satisfies it
 - Check if tests exist and whether they actually test the criterion
 - Run the test suite if possible: `npm test`, `pytest`, `cargo test`, etc.
+
+**Design system compliance (if DESIGN.md exists):**
+For every UI-related acceptance criterion, also check:
+- Implemented colors match the DESIGN.md palette (Section 2)
+- Typography follows the DESIGN.md type scale (Section 3)
+- Component styling matches DESIGN.md patterns (Section 4)
+- Spacing follows the DESIGN.md layout principles (Section 5)
+- Responsive behavior matches DESIGN.md breakpoints (Section 8)
+
+Report violations as status `DESIGN VIOLATION` — implementation exists but deviates from the design system.
 
 ## Step 3: Peer Review Code Review
 
@@ -88,6 +99,13 @@ Review all code changes from the loop (`git diff` output) looking for:
 - Requirements that SHOULD exist but don't
 - Edge cases the blueprint doesn't address
 - Integration points between domains that are undefined
+
+**Design System Violations** (if DESIGN.md exists)
+- Hardcoded color values that should use design tokens
+- Typography that doesn't follow the defined type scale
+- Component styling that deviates from DESIGN.md patterns
+- Spacing/layout that doesn't follow the spacing scale
+- Missing responsive behavior defined in DESIGN.md
 
 ## Step 4: Generate Report
 
@@ -157,6 +175,15 @@ Present this to the user:
 
 ---
 
+## Design System Compliance (if DESIGN.md exists)
+
+### Violations: {count}
+| Component | File | Violation | DESIGN.md Reference | Severity |
+|-----------|------|-----------|---------------------|----------|
+| {component} | {path} | {what deviates} | Section {N} | P2/P3 |
+
+---
+
 ## Verdict
 
 **{APPROVE / REVISE / REJECT}**
@@ -186,6 +213,7 @@ For each finding that reveals a blueprint gap:
 - **Over-built feature worth keeping** — add a new requirement to formalize it
 - **Over-built feature not worth keeping** — note in the report but don't add to blueprint
 - **Security/bug finding that exposes a blueprint gap** — add a requirement that would have caught it (e.g. "R7: Input Validation — all user input is sanitized before database queries")
+- **Design violation that reveals a missing DESIGN.md pattern** — update DESIGN.md by adding the missing pattern to the appropriate section, and log the change to `context/designs/design-changelog.md`
 
 When modifying a blueprint file:
 - Update the `last_edited` date in frontmatter
