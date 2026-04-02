@@ -121,7 +121,7 @@ This registers the Blueprint plugin with Claude Code, syncs it into your local C
 
 ## How It Works
 
-Blueprint follows four phases — **Draft, Architect, Build, Inspect** — each driven by a slash command inside Claude Code. An optional **Research** phase grounds the design in real evidence before blueprints are written.
+Blueprint follows four phases — **Draft, Architect, Build, Inspect** — each driven by a slash command inside Claude Code. An optional **Research** phase grounds the design in real evidence before blueprints are written. A standalone `/bp:design` command creates and maintains a **DESIGN.md** design system that becomes a cross-cutting constraint enforced throughout all phases.
 
 ```
   RESEARCH         DRAFT            ARCHITECT           BUILD                INSPECT
@@ -137,6 +137,11 @@ Blueprint follows four phases — **Draft, Architect, Build, Inspect** — each 
                    Codex challenges                      every tier gate
                    the design                            (speculative +
                                                          synchronous)
+
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  /bp:design (standalone)  →  DESIGN.md  →  design tokens referenced in blueprints + tasks
+                                             design-reviewer enforces across build + inspect
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ### 0. Research — ground the design (optional)
@@ -146,6 +151,23 @@ Blueprint follows four phases — **Draft, Architect, Build, Inspect** — each 
 ```
 
 Dispatches 2–8 parallel subagents to explore the codebase and search the web for current best practices, library landscape, reference implementations, and common pitfalls. A synthesizer agent cross-validates findings and produces a research brief in `context/refs/`. Research is also offered inline during `/bp:draft` when the project involves unfamiliar technology or architectural decisions with multiple viable approaches.
+
+### /bp:design — establish the design system (standalone)
+
+```
+/bp:design
+```
+
+Creates or imports a **DESIGN.md** design system that becomes a cross-cutting constraint layer across the entire pipeline. Once present, every blueprint references its design tokens, every task carries a Design Ref, and every build result is audited for design violations.
+
+Four sub-commands:
+
+- `/bp:design create` — generate a new DESIGN.md from scratch via guided Q&A
+- `/bp:design import` — extract a DESIGN.md from an existing codebase
+- `/bp:design audit` — check current implementation against DESIGN.md, report violations
+- `/bp:design update` — revise DESIGN.md and log the change to `context/designs/design-changelog.md`
+
+When DESIGN.md exists, the **design-reviewer agent** validates UI changes during build and inspect, flagging `DESIGN VIOLATION` statuses for any task that drifts from the tokenized system. Design changes are tracked in a changelog so intent is never lost across build cycles.
 
 ### 1. Draft — define the what
 
@@ -447,6 +469,7 @@ Examples:
 | Command | Phase | Description |
 |---------|-------|-------------|
 | `/bp:research` | Research | Deep multi-agent research — codebase + web, produces research brief |
+| `/bp:design` | Design | Create, import, audit, or update DESIGN.md — establishes a tokenized design system enforced across the pipeline |
 | `/bp:draft` | Draft | Decompose requirements into domain blueprints (offers research if warranted) |
 | `/bp:architect` | Architect | Generate a tiered build site from blueprints |
 | `/bp:build` | Build | Auto-parallel build — dispatches independent tasks concurrently, progresses through tiers autonomously |
@@ -473,6 +496,9 @@ context/
 ├── blueprints/               # Domain blueprints (persist across cycles)
 │   ├── blueprint-overview.md
 │   └── blueprint-{domain}.md
+├── designs/                  # Design system artifacts
+│   ├── DESIGN.md                  # Tokenized design system (colors, typography, spacing, components)
+│   └── design-changelog.md        # Audit log of design decisions and changes
 ├── sites/                    # Build sites (one per plan)
 │   ├── build-site-*.md
 │   └── archive/
@@ -512,11 +538,13 @@ Blueprint is built on a simple observation: LLMs are non-deterministic, but soft
 | **Implementation tracking** | Lab notebook — what was tried, what worked, what failed |
 | **Revision** | Update the hypothesis — trace bugs back to blueprints |
 
-The plugin ships with 8 specialized agents, a multi-agent research system, and 13 deep-dive skills covering the full methodology. When Codex is installed, the system operates as a **dual-model architecture** — Claude builds and Codex reviews — catching classes of errors that single-model self-review cannot detect.
+The plugin ships with 9 specialized agents (including a **design-reviewer** that validates UI changes against DESIGN.md), a multi-agent research system, and 15 deep-dive skills covering the full methodology. When Codex is installed, the system operates as a **dual-model architecture** — Claude builds and Codex reviews — catching classes of errors that single-model self-review cannot detect.
 
 <details>
 <summary><strong>View all skills</strong></summary>
 
+- **[Design System](skills/design-system)** — how to create and maintain a DESIGN.md that agents enforce
+- **[UI Craft](skills/ui-craft)** — component patterns, animation playbook, accessibility checklist, and review checklist for UI work
 - **[Blueprint Writing](skills/blueprint-writing)** — how to write blueprints agents can consume
 - **[Convergence Monitoring](skills/convergence-monitoring)** — detecting when iterations plateau
 - **[Peer Review](skills/peer-review)** — six modes for cross-model review
