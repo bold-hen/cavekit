@@ -27,6 +27,10 @@
   <a href="example.md">Examples</a>
 </p>
 
+<p align="center">
+  <sub>As featured on <a href="https://github.com/hashgraph-online/awesome-codex-plugins">Awesome Codex Plugins</a></sub>
+</p>
+
 ---
 
 ## The Problem
