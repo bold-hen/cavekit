@@ -21,7 +21,20 @@ else
   bp_config_get() { echo "${2:-}"; }
 fi
 
-REVIEW_PROMPT='You are a senior engineer performing adversarial code review. Review the following diff for bugs, security issues, logic errors, and spec violations. For each finding output exactly one row in a markdown table with columns: Severity, File, Line, Description. Severity must be one of P0 (critical), P1 (high), P2 (medium), P3 (low). If no issues found, output exactly the word NO_FINDINGS on its own line and nothing else.'
+_bp_build_review_prompt() {
+  local caveman_active="false"
+  if type bp_config_caveman_active &>/dev/null; then
+    caveman_active="$(bp_config_caveman_active build)"
+  fi
+
+  if [[ "$caveman_active" == "true" ]]; then
+    echo 'Senior engineer. Adversarial code review. Check diff for bugs, security holes, logic errors, spec violations. Each finding = one row in markdown table: Severity, File, Line, Description. Severity: P0 (critical) | P1 (high) | P2 (medium) | P3 (low). No issues found = output NO_FINDINGS alone.'
+  else
+    echo 'You are a senior engineer performing adversarial code review. Review the following diff for bugs, security issues, logic errors, and spec violations. For each finding output exactly one row in a markdown table with columns: Severity, File, Line, Description. Severity must be one of P0 (critical), P1 (high), P2 (medium), P3 (low). If no issues found, output exactly the word NO_FINDINGS on its own line and nothing else.'
+  fi
+}
+
+REVIEW_PROMPT="$(_bp_build_review_prompt)"
 
 # ── Main entry point ───────────────────────────────────────────────────
 

@@ -29,7 +29,35 @@ _BP_DESIGN_CHALLENGE_LOADED=1
 # ── T-301: Design Challenge Prompt Template ───────────────────────────
 
 _bp_design_challenge_prompt() {
-  cat <<'PROMPT'
+  local caveman_active="false"
+  if type bp_config_caveman_active &>/dev/null; then
+    caveman_active="$(bp_config_caveman_active build)"
+  fi
+
+  if [[ "$caveman_active" == "true" ]]; then
+    cat <<'PROMPT'
+Senior architect. Adversarial design review of cavekit specs. CHALLENGE design, not rubber-stamp.
+
+Review all kits as whole system. Design-level concerns only:
+
+1. **Domain Decomposition** — boundaries right? Over/under-scoped? Better decomposition possible?
+2. **Requirement Coverage** — missing reqs? Gaps between domains? Cross-refs cover all interactions?
+3. **Ambiguity** — criteria vague? Checkbox reqs? Implementer know exactly what to build?
+4. **Scope** — domains over/under-scoped? Implicit assumptions?
+5. **Cross-Domain Coherence** — domains fit together? Contradictions? Hidden circular deps?
+
+Rules: NO impl feedback. MUST propose alternative decomposition if better exists. Reference cavekit files + R-numbers.
+
+Output: one row per finding in markdown table: Category, Severity, Cavekit, Requirement, Description
+Category: decomposition|coverage|ambiguity|scope|assumption
+Severity: critical|advisory
+No issues = NO_ISSUES
+
+## Kits to Review
+
+PROMPT
+  else
+    cat <<'PROMPT'
 You are a senior software architect performing an adversarial design review of cavekit specifications. Your job is to CHALLENGE the design, not rubber-stamp it.
 
 Review all kits as a whole system. Focus exclusively on design-level concerns:
@@ -78,6 +106,7 @@ If you find no issues at all, output exactly: NO_ISSUES
 ## Kits to Review
 
 PROMPT
+  fi
 }
 
 # ── T-302: Challenge Output Parser ────────────────────────────────────

@@ -17,8 +17,11 @@ Before starting inspection:
 
 1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and print that exact line once.
 2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model reasoning` and treat the result as `REASONING_MODEL`.
+3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active inspect` and treat the result as `CAVEMAN_ACTIVE` (true/false).
 
 Use `REASONING_MODEL` explicitly for the delegated surveyor and inspector work below.
+
+If `CAVEMAN_ACTIVE` is `true`, your own output (status updates, summaries, reasoning) should use caveman-speak: drop articles, filler, pleasantries — keep technical terms exact and code blocks unchanged. The structured report tables (coverage matrix, findings with P0/P1/P2/P3) stay in normal format. Inject `CAVEMAN MODE: ON` into bp:surveyor and bp:inspector subagent prompts so their status reports are also compressed.
 
 ## Step 1: Gather Context
 

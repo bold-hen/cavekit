@@ -32,6 +32,8 @@ _bp_config_default() {
     command_gate_blocklist) echo "" ;;
     speculative_review) echo "" ;;
     speculative_review_timeout) echo "" ;;
+    caveman_mode) echo "on" ;;
+    caveman_phases) echo "build,inspect" ;;
     *) echo "" ;;
   esac
 }
@@ -72,11 +74,27 @@ _bp_config_validate() {
       echo "bp_config_set: invalid value '$value' for '$key' (allowed: on off)" >&2
       return 1
       ;;
+    caveman_mode)
+      case "$value" in on|off) return 0 ;; esac
+      echo "bp_config_set: invalid value '$value' for '$key' (allowed: on off)" >&2
+      return 1
+      ;;
+    caveman_phases)
+      local phase
+      local IFS=','
+      for phase in $value; do
+        case "$phase" in build|inspect|draft|architect) ;; *)
+          echo "bp_config_set: invalid phase '$phase' in '$key' (allowed: build,inspect,draft,architect)" >&2
+          return 1
+          ;; esac
+      done
+      return 0
+      ;;
     *) return 0 ;;
   esac
 }
 
-_BP_CONFIG_KEYS="bp_model_preset codex_review codex_model codex_effort tier_gate_mode command_gate command_gate_model command_gate_timeout command_gate_allowlist command_gate_blocklist speculative_review speculative_review_timeout"
+_BP_CONFIG_KEYS="bp_model_preset codex_review codex_model codex_effort tier_gate_mode command_gate command_gate_model command_gate_timeout command_gate_allowlist command_gate_blocklist speculative_review speculative_review_timeout caveman_mode caveman_phases"
 
 bp_global_config_path() {
   if [[ -n "${BP_GLOBAL_CONFIG_PATH:-}" ]]; then
@@ -329,6 +347,24 @@ bp_config_model() {
   esac
 }
 
+bp_config_caveman_active() {
+  local phase="${1:?bp_config_caveman_active: phase required}"
+  local mode phases
+
+  mode="$(bp_config_get caveman_mode on)"
+  if [[ "$mode" != "on" ]]; then
+    echo "false"
+    return 0
+  fi
+
+  phases="$(bp_config_get caveman_phases build,inspect)"
+  if echo ",$phases," | grep -q ",$phase,"; then
+    echo "true"
+  else
+    echo "false"
+  fi
+}
+
 bp_config_summary_line() {
   local preset reasoning execution exploration
 
@@ -337,7 +373,10 @@ bp_config_summary_line() {
   execution="$(bp_config_model execution)" || return 1
   exploration="$(bp_config_model exploration)" || return 1
 
-  echo "Cavekit preset: ${preset} (reasoning=${reasoning}, execution=${execution}, exploration=${exploration})"
+  local caveman_mode
+  caveman_mode="$(bp_config_get caveman_mode on)"
+
+  echo "Cavekit preset: ${preset} (reasoning=${reasoning}, execution=${execution}, exploration=${exploration}, caveman=${caveman_mode})"
 }
 
 bp_config_show() {
@@ -351,6 +390,10 @@ bp_config_show() {
   execution="$(bp_config_model execution)" || return 1
   exploration="$(bp_config_model exploration)" || return 1
 
+  local caveman_mode caveman_phases
+  caveman_mode="$(bp_config_get caveman_mode on)"
+  caveman_phases="$(bp_config_get caveman_phases build,inspect)"
+
   cat <<EOF
 bp_model_preset=${preset}
 bp_model_preset_source=${preset_source}
@@ -358,6 +401,8 @@ bp_model_preset_source_path=${preset_source_path}
 reasoning_model=${reasoning}
 execution_model=${execution}
 exploration_model=${exploration}
+caveman_mode=${caveman_mode}
+caveman_phases=${caveman_phases}
 project_config=$(bp_project_config_path)
 global_config=$(bp_global_config_path)
 EOF
@@ -420,9 +465,10 @@ bp_config_main() {
     show) bp_config_show ;;
     summary) bp_config_summary_line ;;
     presets) bp_config_presets ;;
+    caveman-active) bp_config_caveman_active "$@" ;;
     help|--help|-h)
       cat <<'EOF'
-Usage: bp-config.sh {init|get|set|list|path|source|source-path|effective-preset|model|show|summary|presets}
+Usage: bp-config.sh {init|get|set|list|path|source|source-path|effective-preset|model|show|summary|presets|caveman-active}
   init                              Create/backfill global and project config files
   get <key> [default]               Read an effective config value
   set <key> <val> [--global|--project]
@@ -436,6 +482,7 @@ Usage: bp-config.sh {init|get|set|list|path|source|source-path|effective-preset|
   show                              Print effective preset, source, and resolved models
   summary                           Print a one-line preset summary
   presets                           Print the built-in preset table
+  caveman-active <phase>            Check if caveman mode is active for a phase (build|inspect|draft|architect)
 EOF
       ;;
     *)

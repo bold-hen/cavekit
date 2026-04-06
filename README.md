@@ -439,6 +439,8 @@ Settings live in two places:
 | `command_gate_timeout` | milliseconds | `3000` | Codex safety classification timeout |
 | `speculative_review` | `on` `off` | `on` | Background review of previous tier |
 | `speculative_review_timeout` | seconds | `300` | Max wait for speculative results |
+| `caveman_mode` | `on` `off` | `on` | Token-compressed output (~75% savings) |
+| `caveman_phases` | comma-separated | `build,inspect` | Which phases use caveman-speak |
 
 **Model presets:**
 
@@ -526,7 +528,7 @@ Cavekit applies the **scientific method** to AI-generated code. LLMs are non-det
 Ships with 9 specialized agents (including **design-reviewer** for UI validation against DESIGN.md), a multi-agent research system, and 15 skills covering the full methodology. With Codex, operates as a **dual-model architecture** — Claude builds, Codex reviews — catching errors single-model self-review cannot.
 
 <details>
-<summary><strong>All 15 skills</strong></summary>
+<summary><strong>All 16 skills</strong></summary>
 
 | Skill | What it covers |
 |-------|---------------|
@@ -545,6 +547,7 @@ Ships with 9 specialized agents (including **design-reviewer** for UI validation
 | [Documentation Inversion](skills/documentation-inversion) | Docs for agents, not just humans |
 | [Peer Review Loop](skills/peer-review-loop) | Combine build loop with cross-model review |
 | [Core Methodology](skills/methodology) | The full DABI lifecycle |
+| [Caveman](skills/caveman) | Token-compressed output (~75% savings), built-in for build/inspect phases |
 
 </details>
 
@@ -572,7 +575,7 @@ If cavekit save you mass debug time — leave star.
 
 ## Also by Julius Brussee
 
-- **[Caveman](https://github.com/JuliusBrussee/caveman)** — Claude Code skill that cuts ~75% of output tokens. Same accuracy, way less fluff. `npx skills add JuliusBrussee/caveman`
+- **[Caveman](https://github.com/JuliusBrussee/caveman)** — Claude Code skill that cuts ~75% of output tokens. Same accuracy, way less fluff. Now bundled in Cavekit (skill #16) and enabled by default for build/inspect phases. Standalone install: `npx skills add JuliusBrussee/caveman`
 - **[Revu](https://github.com/JuliusBrussee/revu-swift)** — local-first macOS study app with FSRS spaced repetition, decks, exams, and study guides. [revu.cards](https://revu.cards)
 
 ## License

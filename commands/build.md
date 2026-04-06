@@ -19,7 +19,9 @@ Before starting waves:
 
 1. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" summary` and report that exact line once.
 2. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" model execution` and treat the result as `EXECUTION_MODEL`.
-3. Use that exact `EXECUTION_MODEL` string in every `bp:task-builder` delegation below. Do not hard-code `opus`, `sonnet`, or `haiku` in this command.
+3. Run `"${CLAUDE_PLUGIN_ROOT}/scripts/bp-config.sh" caveman-active build` and treat the result as `CAVEMAN_ACTIVE` (true/false).
+4. Use that exact `EXECUTION_MODEL` string in every `bp:task-builder` delegation below. Do not hard-code `opus`, `sonnet`, or `haiku` in this command.
+5. If `CAVEMAN_ACTIVE` is `true`, all your own wave logs, iteration summaries, and status reports in this command should use caveman-speak (drop articles, filler, pleasantries — keep technical terms exact, code blocks unchanged). Spec artifacts (kits, build sites, impl tracking field values) stay in normal prose.
 
 ## Pre-flight Coverage Check
 
@@ -98,6 +100,8 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
    DEAD ENDS TO AVOID:
    {paste relevant dead ends, or 'None'}
 
+   CAVEMAN MODE: {if CAVEMAN_ACTIVE is true, include: 'ON — all status reports, logs, and reasoning use caveman-speak: drop articles/filler/pleasantries, keep technical terms exact, code blocks unchanged. Pattern: [thing] [action] [reason]. Do NOT apply caveman to code, git commits, or structured output fields.' If CAVEMAN_ACTIVE is false, include: 'OFF'}
+
    INSTRUCTIONS:
    1. Read each listed cavekit requirement for full context
    2. Implement the packet as one coherent slice of work
@@ -124,6 +128,12 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
      Skip all three steps if the subagent reported no changes (Claude Code auto-cleans worktrees with no changes). If a merge conflicts, clean up the worktree (`git worktree remove <worktree-path> --force`) before reporting the conflict.
    - Update `context/impl/impl-*.md` with status for each completed task
    - Record any dead ends in `context/impl/dead-ends.md`
+   - Update `context/impl/loop-log.md` with an iteration entry. **If `CAVEMAN_ACTIVE` is true**, compress the loop-log entry to a dense one-liner per task using caveman-speak. Instead of verbose iteration summaries, write compact entries like:
+     ```
+     ### Iteration {N} — {date}
+     - T-{id}: {title} — DONE. Files: {list}. Build P, Tests P. Next: T-{ids}
+     ```
+     The log stays searchable but uses a fraction of the context window. Field names (Task, Status, Files, Validation, Next) can be abbreviated. If `CAVEMAN_ACTIVE` is false, use the standard verbose format.
 
 6. **Tier boundary check** — after updating impl tracking, check whether all tasks in the current tier are now done. If the current tier still has undone tasks, skip this step. If the tier is complete, run the Codex tier gate review (the `TIER_START_REF` was captured in step 1 at the start of this tier):
 
