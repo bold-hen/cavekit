@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/JuliusBrussee/cavekit/internal/exec"
-	"github.com/JuliusBrussee/cavekit/internal/site"
 	"github.com/JuliusBrussee/cavekit/internal/session"
+	"github.com/JuliusBrussee/cavekit/internal/site"
 	"github.com/JuliusBrussee/cavekit/internal/tmux"
 	"github.com/JuliusBrussee/cavekit/internal/tui"
 	"github.com/JuliusBrussee/cavekit/internal/worktree"
@@ -82,9 +82,10 @@ func runMonitor() {
 func runStatus() {
 	executor := exec.NewRealExecutor()
 	wtMgr := worktree.NewManager(executor)
+	ctx := context.Background()
 
 	cwd, _ := os.Getwd()
-	root, err := wtMgr.ProjectRoot(nil, cwd)
+	root, err := wtMgr.ProjectRoot(ctx, cwd)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "not in a git repo: %s\n", err)
 		os.Exit(1)
@@ -147,15 +148,16 @@ func runKill() {
 	executor := exec.NewRealExecutor()
 	tmuxMgr := tmux.NewManager(executor)
 	wtMgr := worktree.NewManager(executor)
+	ctx := context.Background()
 
 	cwd, _ := os.Getwd()
-	root, _ := wtMgr.ProjectRoot(nil, cwd)
+	root, _ := wtMgr.ProjectRoot(ctx, cwd)
 
 	// Kill tmux sessions
-	sessions, _ := tmuxMgr.ListSessions(nil)
+	sessions, _ := tmuxMgr.ListSessions(ctx)
 	killed := 0
 	for _, s := range sessions {
-		tmuxMgr.Kill(nil, s)
+		tmuxMgr.Kill(ctx, s)
 		killed++
 	}
 
@@ -163,7 +165,7 @@ func runKill() {
 	worktrees, _ := worktree.DiscoverAll(root)
 	cleaned := 0
 	for _, wt := range worktrees {
-		wtMgr.Remove(nil, root, wt.SiteName)
+		wtMgr.Remove(ctx, root, wt.SiteName)
 		cleaned++
 	}
 
