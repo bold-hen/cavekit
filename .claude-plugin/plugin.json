@@ -1,6 +1,6 @@
 {
   "name": "ck",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Cavekit — spec-driven AI development with an autonomous execution loop. Hunt lifecycle (sketch → map → make → check), per-task token budgets, stop-hook state machine, model-tier routing, auto-backpropagation from test failures, tool-result caching, Codex peer review, Karpathy behavioural guardrails, caveman token compression, knowledge-graph integration, and design-system enforcement.",
   "author": { "name": "Julius Brussee" },
   "license": "MIT",

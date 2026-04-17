@@ -65,7 +65,7 @@ All under `<project>/.cavekit/`:
 3. **Stop fires** — Claude Code's Stop event triggers `stop-hook.sh`. The hook:
    - reads stdin for `session_id` and `transcript_path`
    - acquires / refreshes the lock
-   - scans the last 20 transcript lines for `<promise>CAVEKIT_COMPLETE</promise>`
+   - scans the last 20 transcript lines for `<promise>CAVEKIT COMPLETE</promise>`
    - if sentinel found → teardown + exit silently
    - else → asks `routeDecision()` for the next prompt
    - prepends the backprop directive if the flag file exists
@@ -86,7 +86,7 @@ All under `<project>/.cavekit/`:
 To end the loop cleanly, emit exactly:
 
 ```
-<promise>CAVEKIT_COMPLETE</promise>
+<promise>CAVEKIT COMPLETE</promise>
 ```
 
 The hook searches for this literal in the last 20 transcript lines. Put it on

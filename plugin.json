@@ -1,5 +1,5 @@
 {
   "name": "ck",
   "description": "Cavekit Framework — spec-driven AI development with an autonomous execution loop. Hunt lifecycle (sketch → map → make → check), per-task token budgets, stop-hook state machine, model-tier routing, auto-backpropagation from test failures, tool-result caching, Codex peer review, Karpathy behavioral guardrails, caveman token compression, knowledge-graph integration, and design-system enforcement.",
-  "version": "2.1.0"
+  "version": "2.2.0"
 }

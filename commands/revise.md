@@ -9,6 +9,22 @@ description: Trace recent manual code fixes back into kits and context files
 
 You are performing revision: tracing recent manual code changes back into kits, plans, and context files so that the convergence loop can reproduce them autonomously. The core principle: when a fix exists only in code without a corresponding cavekit update, the iteration loop may reintroduce the same defect.
 
+## Preferred path when `.cavekit/` is present
+
+Revision is a specific case of **backpropagation**: a bug surfaced, and the
+kit that should have caught it needs amending. When `.cavekit/` is present,
+each manual fix classified below should be routed through the
+`backpropagation` skill (same six-step protocol, audit trail to
+`.cavekit/history/backprop-log.md`):
+
+1. Classify commits (Step 1 below) — unchanged.
+2. For each "Manual fix" commit, instead of inline kit updates in Step 4,
+   invoke `/ck:backprop "<fix description from commit message and diff>"`.
+3. The backprop flow requires explicit user approval before any kit is
+   amended, and generates a regression test to lock the requirement.
+
+If `.cavekit/` is absent, fall through to the legacy inline flow below.
+
 ## Step 1: Analyze Recent Commits
 
 Determine the revision range:

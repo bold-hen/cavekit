@@ -4,7 +4,7 @@
 # Fires on Claude Code's Stop event. If a Cavekit loop is active
 # (.cavekit/.loop.json exists), this hook routes the next prompt
 # and blocks exit to drive iterative execution until the session
-# emits <promise>CAVEKIT_COMPLETE</promise> or a budget is hit.
+# emits <promise>CAVEKIT COMPLETE</promise> or a budget is hit.
 #
 # Contract (from Claude Code hook protocol):
 #   stdin:  JSON { session_id, transcript_path, ... }
@@ -63,7 +63,7 @@ fi
 
 # Check for completion sentinel in recent transcript.
 if [[ -n "$TRANSCRIPT_PATH" && -f "$TRANSCRIPT_PATH" ]]; then
-  if tail -n 20 "$TRANSCRIPT_PATH" 2>/dev/null | grep -q '<promise>CAVEKIT_COMPLETE</promise>'; then
+  if tail -n 20 "$TRANSCRIPT_PATH" 2>/dev/null | grep -qF '<promise>CAVEKIT COMPLETE</promise>'; then
     log_debug "completion sentinel found — tearing down loop"
     node "${PLUGIN_ROOT}/scripts/cavekit-tools.cjs" teardown-loop \
       --cavekit-dir "$CAVEKIT_DIR" >/dev/null 2>&1 || true

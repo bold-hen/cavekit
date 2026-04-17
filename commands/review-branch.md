@@ -92,6 +92,31 @@ Verdict: {PROCEED | BLOCKED}
 With `--strict`, any IMPORTANT finding also blocks. Default gates only on
 CRITICAL.
 
+## Fix cycle (tier gate use)
+
+When `/ck:review-branch` runs as a tier gate during `/ck:make` and the
+verdict is `BLOCKED`:
+
+1. Turn each blocking finding into a fix task description:
+   ```
+   FIX-{n}: {finding summary}
+     Cite: {file:line}
+     Kit: {kit}:R{id}{.AC-id?}
+     Severity: CRITICAL|IMPORTANT
+   ```
+2. Hand the fix tasks back to the loop. The stop-hook will route the next
+   wave with these as additional `ck:task-builder` prompts (use the same
+   model tier the original task used).
+3. Track cycle count across iterations (`review_fix_cycle` field in
+   `.cavekit/state.md`). After each fix wave, re-run `/ck:review-branch`:
+   - If clean → advance the tier.
+   - If still blocked and cycle < 2 → another fix wave.
+   - If still blocked and cycle == 2 → emit
+     `ADVANCE_WITH_FINDINGS` with the list of unresolved items, log to
+     `.cavekit/history/backprop-log.md` as candidate kit amendments, and
+     let the tier advance. This matches the existing
+     `bp_review_fix_cycle` guard from `scripts/codex-gate.sh`.
+
 ## Critical rules
 
 - Read actual diff hunks before citing findings. Never cite a file you didn't

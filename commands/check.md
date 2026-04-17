@@ -25,6 +25,15 @@ Use `REASONING_MODEL` explicitly for the delegated surveyor and inspector work b
 
 If `CAVEMAN_ACTIVE` is `true`, your own output (status updates, summaries, reasoning) should use caveman-speak: drop articles, filler, pleasantries — keep technical terms exact and code blocks unchanged. The structured report tables (coverage matrix, findings with P0/P1/P2/P3) stay in normal format. Inject `CAVEMAN MODE: ON` into ck:surveyor and ck:inspector subagent prompts so their status reports are also compressed.
 
+For internal artifacts (verifier notes, surveyor summaries, inspector
+handoff memos) in a `.cavekit/` project, resolve the machine-to-machine
+intensity once at the start — the inspecting phase clamps to `lite` to
+preserve accuracy:
+
+```bash
+INTENSITY=$(node "${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs" intensity)
+```
+
 ## Step 1: Gather Context
 
 Read these files to understand what happened:
@@ -39,6 +48,23 @@ Read these files to understand what happened:
 
 If no impl tracking or loop log exists, tell the user:
 > No loop artifacts found. Run `/ck:make` first, then `/ck:check` after it completes.
+
+## Step 1.5: Goal-Backward Verification (when `.cavekit/` is present)
+
+Before the gap analysis, dispatch the `ck:verifier` agent. It works
+backwards from each acceptance criterion, checking whether code actually
+meets it — not just whether a task is marked `complete`. It flags:
+
+- **MET** — with file:line citation
+- **STUB** — code exists but returns a placeholder
+- **PARTIAL** — some cases covered, others not
+- **NOT_MET** — no code addresses this
+- **UNVERIFIABLE** — criterion vague; escalate to `/ck:backprop`
+- **falsely_complete tasks** — task marked DONE but criteria STUB/PARTIAL
+
+Merge the verifier's report into the gap analysis below. Any
+`STUB` / `falsely_complete` finding is a candidate for
+`/ck:backprop --from-finding F-XXX`.
 
 ## Step 2: Gap Analysis
 
@@ -207,6 +233,17 @@ Present this to the user:
 ## Step 5: Revise
 
 After presenting the report, **automatically update kits and site** based on findings. Do not ask — just do it.
+
+### Route findings through backpropagation (when `.cavekit/` is present)
+
+For each finding that reveals a specific bug or gap (e.g., missing/vague
+criterion, stub implementation, `falsely_complete` task), prefer invoking
+`/ck:backprop --from-finding F-XXX` for that finding. The backpropagation
+skill enforces the six-step trace (TRACE → ANALYZE → PROPOSE → GENERATE →
+VERIFY → LOG), requires explicit user approval before writing a kit
+amendment, and produces an append-only audit entry in
+`.cavekit/history/backprop-log.md`. The inline kit-update rules below still
+apply when `.cavekit/` is absent.
 
 ### Update Kits
 

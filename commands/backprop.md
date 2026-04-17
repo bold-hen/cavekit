@@ -25,13 +25,20 @@ Invoke the `backpropagation` skill. Follow its six steps exactly:
 
 ## Input modes
 
-- **No args** — ask the user to paste the failure details.
+- **No args** — first, check whether `.cavekit/.auto-backprop-pending.json`
+  exists. If it does, auto-consume it exactly as if `--from-flag` were
+  passed, and print a one-line notice that you are honouring the pending
+  flag from a failed test run. If it does not, ask the user to paste the
+  failure details.
 - **FAILURE_DESCRIPTION** — a free-text paragraph. Use it verbatim as the
   trace input.
 - **`--from-flag`** — read `.cavekit/.auto-backprop-pending.json`. Use the
-  recorded `command` and `failure_excerpt`. Delete the flag when done.
-- **`--from-finding F-ID`** — read the Codex review output
-  (`.cavekit/branch-reviews/` or similar) and pull the finding by ID.
+  recorded `command` and `failure_excerpt`. Delete the flag when done
+  (the auto-backprop hook is idempotent, so deletion is mandatory here —
+  otherwise the next stop-hook iteration will fire the directive again).
+- **`--from-finding F-ID`** — read the `/ck:review-branch` or Codex review
+  output and pull the finding by ID. Inline-ingest the finding's summary
+  + file:line citation as the trace input.
 
 ## After the fix
 

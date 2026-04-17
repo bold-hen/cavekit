@@ -34,6 +34,13 @@ Before dispatching any research agents:
 
 Use `EXPLORATION_MODEL` for codebase/web researchers and `REASONING_MODEL` for the synthesizer.
 
+For single-topic, quick briefs (depth: quick or a narrow scope), prefer
+dispatching the `ck:researcher` agent once instead of the full multi-agent
+fan-out. The agent follows the shared source-order contract (repo →
+graphify → references → web) and produces a standard brief with citations.
+Use the multi-agent flow below for broader topics, depth `standard`/`deep`,
+or when the description spans multiple independent subtopics.
+
 ## Step 1: Assess Project Size
 
 Quickly count source files (exclude `node_modules`, `.git`, `dist`, `build`, `vendor`, `__pycache__`, `.next`, `.nuxt`):

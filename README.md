@@ -467,10 +467,33 @@ All runtime state lives under `<project>/.cavekit/`:
 ```
 
 To end the loop cleanly, agents emit the sentinel
-`<promise>CAVEKIT_COMPLETE</promise>` on its own line. The hook sees it,
+`<promise>CAVEKIT COMPLETE</promise>` on its own line. The hook sees it,
 tears down the loop, and lets the session stop normally.
 
 Debug with `CAVEKIT_DEBUG=1`. Recover from a crash with `/ck:resume`.
+
+### Wiring through the Hunt lifecycle
+
+Each phase calls the runtime at well-defined points:
+
+| Phase                   | Runtime call                                                          |
+|-------------------------|-----------------------------------------------------------------------|
+| `/ck:init`              | `cavekit-tools init` + `discover`; seeds `.cavekit/` and `.gitignore` |
+| `/ck:sketch`            | dispatches `ck:complexity` per kit to auto-fill `complexity:` field   |
+| `/ck:map`               | writes `.cavekit/tasks.json` + `init-registry` + `cavekit-router`     |
+| `/ck:make`              | `setup-build.sh` calls `setup-loop`; stop-hook then drives waves      |
+| `/ck:check`             | dispatches `ck:verifier` for goal-backward + falsely-complete check   |
+| `/ck:review-branch`     | two-pass review; fix-cycle emits fix tasks back into the loop         |
+| `/ck:backprop`          | consumes `.cavekit/.auto-backprop-pending.json` when present          |
+| `/ck:revise`            | routes each manual fix through `/ck:backprop`                         |
+| `/ck:progress`          | prints live runtime status block before legacy impl rollup            |
+| `/ck:resume`            | steals stale locks, validates state, re-enters the loop               |
+| `/ck:watch`             | tails `.cavekit/.progress.json` snapshots                             |
+| `/ck:config`            | surfaces new runtime keys alongside existing preset controls          |
+
+The wiring is **opt-in per repo**: commands detect `.cavekit/` and route
+through the runtime when it is present, falling back to the pre-2.2 path
+when it is not. Run `/ck:init` once per repo to opt in.
 
 ---
 

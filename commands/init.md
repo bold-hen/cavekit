@@ -1,19 +1,57 @@
 ---
 name: ck-init
-description: "Bootstrap the context hierarchy — creates all directories, CLAUDE.md files, and index files"
+description: "Bootstrap the context hierarchy and runtime — creates context/, .cavekit/ state dir, detects capabilities, writes .gitignore entries"
+allowed-tools: ["Bash(node ${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs:*)", "Bash(git *)", "Read(*)", "Write(*)", "Edit(*)", "Glob(*)"]
 ---
 
 > **Note:** `/bp:init` is deprecated and will be removed in a future version. Use `/ck:init` instead.
 
-# Cavekit Init — Bootstrap Context Hierarchy
+# Cavekit Init — Bootstrap Context Hierarchy + Runtime
 
-Creates the full context hierarchy for a Cavekit project. Run once at the start of a project, or re-run safely — it only creates what's missing.
+Creates the full context hierarchy AND the autonomous-runtime state directory for a Cavekit project. Run once at the start of a project, or re-run safely — it only creates what's missing.
 
 ## Properties
 
 - **Idempotent** — creates only what's missing. Safe to re-run.
 - **Non-destructive** — never overwrites existing files.
 - **No questions** — does not ask what you're building (that's `/ck:sketch`).
+
+## Step 0: Initialize Runtime State
+
+Run the runtime initializers. These are no-ops if `.cavekit/` already exists.
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs" init
+node "${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs" discover
+```
+
+After this:
+- `.cavekit/config.json` — runtime config (session budget, task budgets, parallelism, etc.)
+- `.cavekit/state.md` — phase state machine (`phase: idle` to start)
+- `.cavekit/token-ledger.json` — session + per-task token accounting
+- `.cavekit/capabilities.json` — detected CLI tools, MCP servers, plugins
+- `.cavekit/history/` — backprop audit trail (created on first entry)
+
+### Ensure `.gitignore` covers runtime state
+
+If the repo has a `.gitignore` and it does not already mention `.cavekit/`, append this block (read the file first and only append if missing):
+
+```
+# Cavekit runtime — transient state
+.cavekit/.loop.json
+.cavekit/.loop.lock
+.cavekit/.progress.json
+.cavekit/.auto-backprop-pending.json
+.cavekit/.debug.log
+.cavekit/tool-cache/
+.cavekit/state.md
+.cavekit/token-ledger.json
+.cavekit/task-status.json
+.cavekit/tasks.json
+.cavekit/capabilities.json
+```
+
+Commit `.cavekit/config.json` and `.cavekit/history/` intentionally — they are the user's tunables and the audit log.
 
 ## Step 1: Scan Existing Project Structure
 
@@ -251,6 +289,9 @@ Report what was created:
 ```markdown
 ## Init Report
 
+### Runtime (.cavekit/)
+- {list new files: config.json, state.md, token-ledger.json, capabilities.json}
+
 ### Directories Created
 - {list of new directories}
 
@@ -259,6 +300,10 @@ Report what was created:
 
 ### Index Files Created
 - {list of new index files}
+
+### Capabilities detected
+- CLI: {list tools found: gh, git, node, codex, …}
+- MCP: {list servers from .mcp.json if present, else "none"}
 
 ### Legacy Migration
 - {migration status if applicable}

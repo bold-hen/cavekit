@@ -1,7 +1,8 @@
 ---
 name: ck-progress
-description: "Show progress against the build site or plan — tasks done, in progress, blocked, remaining"
+description: "Show progress against the build site or plan — tasks done, in progress, blocked, remaining. Includes live runtime status when .cavekit/ is present."
 argument-hint: "[--filter PATTERN]"
+allowed-tools: ["Bash(node ${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs:*)", "Bash(cat .cavekit/*)", "Read(*)", "Glob(*)", "Grep(*)"]
 ---
 
 > **Note:** `/bp:progress` is deprecated and will be removed in a future version. Use `/ck:progress` instead.
@@ -9,6 +10,23 @@ argument-hint: "[--filter PATTERN]"
 # Cavekit Progress
 
 Show the user a progress report by comparing the build site against implementation tracking.
+
+## Step 0: Runtime Status (when available)
+
+If `.cavekit/state.md` exists, print the runtime status block first — it is the
+authoritative live view of the loop:
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs" status
+```
+
+Then also show the progress snapshot if it exists:
+
+```bash
+cat .cavekit/.progress.json 2>/dev/null
+```
+
+If `.cavekit/` is absent, skip Step 0 and run the legacy impl-based flow below.
 
 ## Step 1: Find Site
 
@@ -74,7 +92,11 @@ For each task in the site:
 ### Loop Status
 - Iterations completed: {n}
 - Last iteration: {timestamp}
-- Active: {yes/no — .claude/ralph-loop.local.md exists?}
+- Active: {yes/no — `.cavekit/.loop.json` exists? Legacy: `.claude/ralph-loop.local.md`}
+
+### Runtime Budget (if .cavekit/token-ledger.json exists)
+- Session tokens: {used} / {budget} ({pct}%)
+- Per-task status: {count ok} / {count warn} / {count exhausted}
 ```
 
 Display this to the user.

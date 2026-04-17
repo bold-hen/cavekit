@@ -54,20 +54,20 @@ cat > "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" <<EOF
   "owner": { "name": "$(whoami)" },
   "metadata": {
     "description": "Local Cavekit plugin marketplace",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
   "plugins": [
     {
       "name": "ck",
       "description": "Cavekit framework with skills, commands, agents, and references",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "source": "./ck",
       "author": { "name": "$(whoami)" }
     },
     {
       "name": "bp",
       "description": "[DEPRECATED — use /ck:* instead] Cavekit framework (legacy alias)",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "source": "./bp",
       "author": { "name": "$(whoami)" }
     }

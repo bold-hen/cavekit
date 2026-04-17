@@ -264,7 +264,7 @@ function setupLoop(cavekitDir, opts = {}) {
     started_at: new Date().toISOString(),
     iteration: 0,
     max_iterations: maxIt,
-    completion_promise: opts.completionPromise || "<promise>CAVEKIT_COMPLETE</promise>",
+    completion_promise: opts.completionPromise || "<promise>CAVEKIT COMPLETE</promise>",
     site: opts.site || null,
   };
   writeJson(loopFile(cavekitDir), loop);
@@ -356,6 +356,47 @@ function sessionBudgetPressure(cavekitDir) {
   const budget = Number(ledger.session_budget || 0);
   if (!budget) return 0;
   return used / budget;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Caveman-internal intensity resolver
+// ────────────────────────────────────────────────────────────────────
+
+// Returns "lite" | "full" | "ultra" based on budget pressure, current task
+// depth, and current phase. See skills/caveman-internal/references/
+// budget-thresholds.md for the canonical decision table.
+function resolveIntensity(cavekitDir, opts = {}) {
+  const explicit = opts.explicit;
+  if (explicit && ["lite", "full", "ultra"].includes(explicit)) return explicit;
+
+  const sessionPressure = sessionBudgetPressure(cavekitDir);
+  const state = readState(cavekitDir);
+  const phase = opts.phase || state.meta.phase || "idle";
+
+  // Clamps: thorough depth and inspecting phase prefer lite.
+  let depth = opts.depth;
+  if (!depth && state.meta.current_task) {
+    const tb = checkTaskBudget(cavekitDir, state.meta.current_task);
+    depth = tb && tb.depth;
+  }
+  if (depth === "thorough") return "lite";
+  if (phase === "inspecting") return "lite";
+
+  // Per-task pressure fallback.
+  let taskPressure = 0;
+  if (state.meta.current_task) {
+    const tb = checkTaskBudget(cavekitDir, state.meta.current_task);
+    if (tb && tb.budget) taskPressure = tb.used / tb.budget;
+  }
+
+  if (sessionPressure < 0.5 && taskPressure < 0.5) return "lite";
+  if (sessionPressure < 0.5) return "full";
+  if (sessionPressure < 0.8) {
+    if (taskPressure >= 0.8) return "ultra";
+    return depth === "thorough" ? "lite" : "full";
+  }
+  // >= 0.8 session pressure
+  return depth === "thorough" ? "lite" : "ultra";
 }
 
 // ────────────────────────────────────────────────────────────────────
@@ -513,7 +554,7 @@ function routeDecision(cavekitDir, ctx = {}) {
     "",
     "    node \"${CLAUDE_PLUGIN_ROOT}/scripts/cavekit-tools.cjs\" mark-complete --task " + next.id,
     "",
-    "When the entire registry is `complete`, emit the line `<promise>CAVEKIT_COMPLETE</promise>`",
+    "When the entire registry is `complete`, emit the line `<promise>CAVEKIT COMPLETE</promise>`",
     "to end the loop. If you hit a blocker, set the task's status to `blocked` and explain why.",
   ].join("\n");
 
@@ -658,6 +699,15 @@ function cli(argv) {
       process.stdout.write(JSON.stringify(caps, null, 2) + "\n");
       return 0;
     }
+    case "intensity": {
+      const out = resolveIntensity(dir, {
+        depth: args.depth,
+        phase: args.phase,
+        explicit: args.explicit,
+      });
+      process.stdout.write(out + "\n");
+      return 0;
+    }
     case "next-task": {
       const t = findNextUnblockedTask(dir);
       process.stdout.write(t ? JSON.stringify(t) + "\n" : "");
@@ -699,6 +749,7 @@ function cli(argv) {
         "  backprop-directive",
         "  status-block",
         "  discover                     Write capabilities.json",
+        "  intensity [--depth D] [--phase P] [--explicit I]  Resolve caveman-internal intensity",
         "",
       ].join("\n"));
       return 0;
@@ -749,4 +800,5 @@ module.exports = {
   backpropDirective,
   statusBlock,
   resolveCavekitDir,
+  resolveIntensity,
 };
