@@ -37,6 +37,18 @@ count_frontier_tasks() {
 }
 
 SCRIPT_DIR="$(resolve_script_dir)"
+CAVEKIT_BIN="$(cd "$SCRIPT_DIR/.." && pwd)/bin/cavekit-bin"
+
+delegate_to_bin() {
+  # Forward everything to the Go binary. Used for subcommands the bash wrapper
+  # doesn't implement natively (team, version, debug, reset, ...).
+  if [[ ! -x "$CAVEKIT_BIN" ]]; then
+    printf "cavekit: '%s' requires the Go binary at %s.\n" "$1" "$CAVEKIT_BIN" >&2
+    printf "         Re-run install.sh (requires Go 1.21+) to build it.\n" >&2
+    exit 1
+  fi
+  exec "$CAVEKIT_BIN" "$@"
+}
 
 usage() {
   cat <<'EOF'
@@ -196,6 +208,11 @@ case "${1:-}" in
   --monitor)
     shift
     do_monitor "$@"
+    ;;
+  team|version|debug|reset|status|monitor)
+    # Delegate these to the Go binary (cavekit-bin). Keeps `cavekit team …`,
+    # `cavekit version`, etc. working via the same entry point.
+    delegate_to_bin "$@"
     ;;
   *)
     echo "Unknown option: $1" >&2

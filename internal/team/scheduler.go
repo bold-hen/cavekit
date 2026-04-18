@@ -66,10 +66,11 @@ func NextTask(root string, identity Identity, stderr io.Writer) (NextSuggestion,
 		if blocked {
 			continue
 		}
-		// Path overlap: if this task's probable file footprint conflicts with any
-		// active claim, skip. We can only use hints (no task-to-paths map yet),
-		// so fall back to task spec as a coarse signal — tasks in the same spec
-		// often touch the same subsystem.
+		// Path overlap: if this task declares a file footprint in the kit
+		// (Files column), compare it directly against active claim paths via
+		// PathsOverlap. For kits that haven't yet declared Files, fall back to
+		// a coarse spec-substring check so legacy sites still get some
+		// protection.
 		conflict := false
 		for _, claim := range claims {
 			if claim.Session == identity.Session {
@@ -79,9 +80,15 @@ func NextTask(root string, identity Identity, stderr io.Writer) (NextSuggestion,
 				// Unscoped claims don't block path-disjoint work.
 				continue
 			}
-			// Heuristic: if the task's spec prefix is literally a substring of any
-			// claim path, assume overlap. Callers can override by passing explicit
-			// --paths to `team claim`.
+			if len(task.Files) > 0 {
+				if PathsOverlap(task.Files, claim.Paths) {
+					skipped[task.ID] = fmt.Sprintf("path overlap with %s (%v)", claim.Owner, claim.Paths)
+					conflict = true
+					break
+				}
+				continue
+			}
+			// Legacy fallback: no Files column — use spec substring hint.
 			for _, p := range claim.Paths {
 				if task.Spec != "" && substringMatch(p, task.Spec) {
 					skipped[task.ID] = fmt.Sprintf("path overlap with %s (%s)", claim.Owner, p)
@@ -114,6 +121,7 @@ func NextTask(root string, identity Identity, stderr io.Writer) (NextSuggestion,
 	return NextSuggestion{
 		Schema:       Schema,
 		Task:         &primary,
+		Paths:        primary.Files,
 		SkippedBy:    skipped,
 		Alternatives: alts,
 	}, nil

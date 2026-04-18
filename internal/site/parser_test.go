@@ -117,3 +117,55 @@ func TestTaskByID_NotFound(t *testing.T) {
 		t.Error("TaskByID should return nil for non-existent task")
 	}
 }
+
+const testSiteWithFiles = `# Site with Files
+
+## Tier 0 — No Dependencies
+
+| Task | Title | Spec | Requirement | Effort | Files |
+|------|-------|------|------------|--------|-------|
+| T-001 | Auth module | spec.md | R1 | S | src/auth/**, tests/auth/** |
+| T-002 | No paths | spec.md | R1 | M | - |
+
+## Tier 1 — Depends on Tier 0
+
+| Task | Title | Spec | Requirement | blockedBy | Effort | Files |
+|------|-------|------|------------|-----------|--------|-------|
+| T-003 | DB layer | spec.md | R2 | T-001 | M | internal/db/**; migrations/** |
+`
+
+func TestParse_FilesColumn(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, "build-site.md")
+	if err := os.WriteFile(path, []byte(testSiteWithFiles), 0644); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+	s, err := Parse(path)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+
+	t001 := s.TaskByID("T-001")
+	if t001 == nil {
+		t.Fatal("T-001 not found")
+	}
+	if len(t001.Files) != 2 || t001.Files[0] != "src/auth/**" || t001.Files[1] != "tests/auth/**" {
+		t.Errorf("T-001 Files = %v", t001.Files)
+	}
+
+	t002 := s.TaskByID("T-002")
+	if t002 == nil {
+		t.Fatal("T-002 not found")
+	}
+	if len(t002.Files) != 0 {
+		t.Errorf("T-002 Files should be empty, got %v", t002.Files)
+	}
+
+	t003 := s.TaskByID("T-003")
+	if t003 == nil {
+		t.Fatal("T-003 not found")
+	}
+	if len(t003.Files) != 2 || t003.Files[0] != "internal/db/**" || t003.Files[1] != "migrations/**" {
+		t.Errorf("T-003 Files = %v", t003.Files)
+	}
+}

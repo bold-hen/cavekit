@@ -318,6 +318,47 @@ func TestPathsOverlap(t *testing.T) {
 	}
 }
 
+// TestClaim_DefaultsPathsFromSiteFiles: when the kit declares a Files column
+// for a task, Claim should use those globs if --paths isn't passed, and the
+// resulting claim event should record them.
+func TestClaim_DefaultsPathsFromSiteFiles(t *testing.T) {
+	root := seedProject(t)
+	// Overwrite the seeded plan with one that declares Files on T-001.
+	plan := `## Tier 1
+| Task | Title | Spec | Requirement | blockedBy | Effort | Files |
+| T-001 | Demo task | demo | R1 | — | S | src/demo/**, tests/demo/** |
+`
+	if err := os.WriteFile(filepath.Join(root, "context", "plans", "plan-site.md"), []byte(plan), 0o644); err != nil {
+		t.Fatalf("write plan: %v", err)
+	}
+
+	ex := newFakeExec()
+	var stderr bytes.Buffer
+	m := newTestManager(root, ex, &stderr)
+
+	res, err := m.Claim(context.Background(), "T-001", nil)
+	if err != nil {
+		t.Fatalf("claim failed: %v", err)
+	}
+	if len(res.Paths) != 2 || res.Paths[0] != "src/demo/**" || res.Paths[1] != "tests/demo/**" {
+		t.Fatalf("expected paths defaulted from kit Files, got %v", res.Paths)
+	}
+
+	events, err := ReadLedger(root, nil)
+	if err != nil {
+		t.Fatalf("read ledger: %v", err)
+	}
+	var got []string
+	for _, e := range events {
+		if e.Task == "T-001" && e.Type == EventClaim {
+			got = e.Paths
+		}
+	}
+	if len(got) != 2 || got[0] != "src/demo/**" || got[1] != "tests/demo/**" {
+		t.Fatalf("ledger claim event paths = %v", got)
+	}
+}
+
 // TestGuardCommit_BlocksTeammatePaths writes a ledger with another session's
 // active claim covering src/auth/** and asserts GuardCommit exits 8 when the
 // local identity stages src/auth/login.go.

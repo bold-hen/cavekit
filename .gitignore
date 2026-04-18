@@ -5,6 +5,7 @@
 /docs
 /.playwright-mcp
 current-site-full.png
+/bin/cavekit-bin
 
 # Cavekit runtime — transient state written by the autonomous loop.
 # Commit `.cavekit/config.json` (user-editable config) and `.cavekit/history/`

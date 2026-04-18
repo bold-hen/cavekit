@@ -13,13 +13,18 @@ var taskIDPattern = regexp.MustCompile(`T-([A-Za-z0-9]+-)*[A-Za-z0-9]+`)
 
 // Task represents a single task from a site file.
 type Task struct {
-	ID        string
-	Title     string
-	Spec      string
+	ID          string
+	Title       string
+	Spec        string
 	Requirement string
-	BlockedBy []string
-	Effort    string
-	Tier      int
+	BlockedBy   []string
+	Effort      string
+	Tier        int
+	// Files is an optional list of file globs that this task is expected to
+	// touch. When present, the team scheduler uses it for real path-overlap
+	// detection instead of falling back to a substring heuristic, and
+	// `cavekit team claim` defaults --paths to this list.
+	Files []string
 }
 
 // Site represents a parsed site file.
@@ -112,23 +117,57 @@ func parseTableRow(line string, tier int) *Task {
 		task.Requirement = strings.TrimSpace(cells[3])
 	}
 
-	// The blockedBy and effort columns vary by tier (tier 0 has no blockedBy column)
+	// The blockedBy and effort columns vary by tier (tier 0 has no blockedBy column).
+	// An optional trailing "Files" column may be present on either tier.
 	if tier == 0 {
-		// | Task | Title | Spec | Requirement | Effort |
+		// | Task | Title | Spec | Requirement | Effort | Files? |
 		if len(cells) > 4 {
 			task.Effort = strings.TrimSpace(cells[4])
 		}
+		if len(cells) > 5 {
+			task.Files = parseFiles(cells[5])
+		}
 	} else {
-		// | Task | Title | Spec | Requirement | blockedBy | Effort |
+		// | Task | Title | Spec | Requirement | blockedBy | Effort | Files? |
 		if len(cells) > 4 {
 			task.BlockedBy = parseBlockedBy(cells[4])
 		}
 		if len(cells) > 5 {
 			task.Effort = strings.TrimSpace(cells[5])
 		}
+		if len(cells) > 6 {
+			task.Files = parseFiles(cells[6])
+		}
 	}
 
 	return task
+}
+
+// parseFiles splits a cell into a list of path globs. Accepts comma or
+// semicolon separators so patterns that include commas (e.g. brace expansion)
+// can opt into `;`. Empty cells and placeholder dashes are treated as unset.
+func parseFiles(cell string) []string {
+	cell = strings.TrimSpace(cell)
+	if cell == "" || cell == "-" || cell == "—" {
+		return nil
+	}
+	sep := ","
+	if strings.Contains(cell, ";") {
+		sep = ";"
+	}
+	parts := strings.Split(cell, sep)
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		out = append(out, p)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func splitTableRow(line string) []string {

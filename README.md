@@ -169,6 +169,7 @@ The main cycle is four commands. Everything else is optional.
 | `/ck:status` | Task frontier and runtime state. `--watch` tails the live dashboard. |
 | `/ck:config` | Execution presets and runtime keys. `--global` writes to `~/.cavekit/config`. |
 | `/ck:resume` | Recover an interrupted loop. |
+| `/ck:team` | Multi-person / multi-device coordination (opt-in). See [Teams](#teams). |
 | `/ck:help` | Command reference. |
 
 Run `/ck:help` for flag-level detail on any command.
@@ -320,6 +321,65 @@ Settings live in two places:
 | `graphify_enabled` | `on` `off` | `off` | Use knowledge-graph queries |
 
 </details>
+
+---
+
+## Teams
+
+Cavekit has an **opt-in team mode** that lets multiple people — or the same person on multiple devices — safely share one build site without stepping on each other.
+
+It is *not* a server. It's a CAS-backed ledger on its own git ref plus a pre-commit guard, so the coordination state travels with the repo and nothing else needs to be hosted.
+
+### Setup
+
+```bash
+cavekit team init   # once, per repo — creates the ledger ref on origin and installs a pre-commit hook
+cavekit team join   # in every other checkout / clone / machine
+```
+
+### What it gives you
+
+- **Claims on tasks** — `cavekit team claim T-013` reserves a task for your identity. Teammates see it and `team next` skips it.
+- **Path-scoped claims** — two people can share one task if their file footprints are disjoint: `claim T-013 --paths "src/auth/**,tests/auth/**"`.
+- **Automatic path scoping from kits** — if the build site declares a `Files` column, claims default to those globs. No one has to guess.
+- **Pre-commit guard** — a local hook refuses to commit files another teammate has actively claimed. Emergency override: `CAVEKIT_TEAM_OVERRIDE=1 git commit …` (recorded in the ledger).
+- **Offline-safe** — claims and releases queue locally if you can't reach origin, and drain on the next successful op.
+- **No feature-branch pollution** — the ledger lives on `refs/heads/cavekit/team`, not on your working branch.
+
+### Declaring file footprints in kits (`Files` column)
+
+Add an optional trailing `Files` column to any build-site table. When present, the scheduler uses it for real path-overlap detection and `claim` auto-defaults to these globs:
+
+```markdown
+## Tier 0 — No Dependencies
+
+| Task  | Title       | Spec     | Requirement | Effort | Files                         |
+|-------|-------------|----------|-------------|--------|-------------------------------|
+| T-001 | Auth module | spec.md  | R1          | S      | src/auth/**, tests/auth/**    |
+
+## Tier 1 — Depends on Tier 0
+
+| Task  | Title   | Spec    | Requirement | blockedBy | Effort | Files                           |
+|-------|---------|---------|-------------|-----------|--------|---------------------------------|
+| T-003 | DB layer| spec.md | R2          | T-001     | M      | internal/db/**; migrations/**   |
+```
+
+Separate globs with commas (or semicolons if a pattern itself contains a comma). Kits without a `Files` column keep working — the scheduler falls back to coarser heuristics for those tasks.
+
+### Day-to-day
+
+```bash
+cavekit team status              # active claims, recent activity, idle members
+cavekit team status --conflicts  # add race/override/outbox diagnostics
+cavekit team next --json         # best unclaimed path-safe task for you
+cavekit team claim T-013         # paths default to the kit's Files column
+cavekit team release T-013 --complete
+cavekit team sync --timeout 5    # fetch ledger + drain offline outbox
+```
+
+`/ck:make` integrates automatically — when team mode is active, it claims packets before dispatch, runs a background heartbeat, and releases on merge or failure.
+
+Configuration lives in `.cavekit/team/config.json` (`lease_ttl_seconds`, `heartbeat_interval_seconds`, `allow_offline`, …). Exit codes and troubleshooting are in `/ck:team --help` and [`commands/team.md`](commands/team.md).
 
 ---
 

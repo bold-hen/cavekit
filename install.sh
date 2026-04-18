@@ -164,6 +164,21 @@ chmod +x "$INSTALL_DIR/scripts/dashboard-progress.sh"
 chmod +x "$INSTALL_DIR/scripts/dashboard-activity.sh"
 chmod +x "$INSTALL_DIR/scripts/setup-build.sh"
 
+# Build the Go binary that backs `cavekit team ...`, `cavekit version`, etc.
+# The bash wrapper delegates unrecognized subcommands to it.
+if command -v go &>/dev/null; then
+  info "Building cavekit-bin (Go binary for team + plumbing subcommands)..."
+  mkdir -p "$INSTALL_DIR/bin"
+  if (cd "$INSTALL_DIR" && go build -o "$INSTALL_DIR/bin/cavekit-bin" ./cmd/cavekit); then
+    chmod +x "$INSTALL_DIR/bin/cavekit-bin"
+    ok "Built $INSTALL_DIR/bin/cavekit-bin"
+  else
+    warn "go build failed — 'cavekit team' and related subcommands will be unavailable until resolved."
+  fi
+else
+  warn "go not found — skipping cavekit-bin build. 'cavekit team' will be unavailable. Install Go 1.21+ and re-run."
+fi
+
 if [[ -w "$BIN_DIR" ]]; then
   ln -sf "$INSTALL_DIR/scripts/cavekit" "$BIN_DIR/cavekit"
   ok "Installed cavekit to $BIN_DIR/cavekit"

@@ -252,6 +252,15 @@ func (m *Manager) claimWithRetry(ctx context.Context, taskID string, paths []str
 		return ClaimResult{}, &ExitError{Code: 6, Message: fmt.Sprintf("task not in frontier: %s", taskID)}
 	}
 
+	// If the caller didn't pass --paths, default to the task's declared Files
+	// footprint from the kit (if any). This is the main payoff of kit-level
+	// file scoping: claims get correct paths without anyone guessing.
+	if len(paths) == 0 {
+		if t := selected.TaskByID(taskID); t != nil && len(t.Files) > 0 {
+			paths = append([]string{}, t.Files...)
+		}
+	}
+
 	ttl := time.Duration(cfg.LeaseTTLSeconds) * time.Second
 	allActive := AllActiveClaims(events, ttl, m.Now())
 	for _, claim := range allActive {
