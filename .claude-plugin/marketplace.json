@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "ck",
-      "description": "Cavekit Framework — Hunt lifecycle with autonomous loop, per-task budgets, routing, and backpropagation",
+      "description": "Cavekit Framework — Hunt lifecycle with autonomous loop, per-task budgets, routing, and auto-revision",
       "source": "./",
       "category": "development"
     }

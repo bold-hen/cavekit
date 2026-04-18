@@ -573,7 +573,7 @@ function backpropDirective(cavekitDir) {
     `Failing command: ${flag.command || "(unknown)"}`,
     `Triggered at: ${flag.triggered_at || "(unknown)"}`,
     "",
-    "Before patching code, invoke the `backpropagation` skill and run these steps:",
+    "Before patching code, invoke the `revision` skill (automated-trace subsection) and run these steps:",
     "  1. TRACE — map the failure to a specific kit requirement (R-ID).",
     "  2. ANALYZE — classify: missing_criterion | incomplete_criterion | missing_requirement.",
     "  3. PROPOSE — if the spec needs a change, draft it and ask the user to approve.",

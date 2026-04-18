@@ -60,12 +60,12 @@ meets it — not just whether a task is marked `complete`. It flags:
 - **STUB** — code exists but returns a placeholder
 - **PARTIAL** — some cases covered, others not
 - **NOT_MET** — no code addresses this
-- **UNVERIFIABLE** — criterion vague; escalate to `/ck:backprop`
+- **UNVERIFIABLE** — criterion vague; escalate to `/ck:revise --trace`
 - **falsely_complete tasks** — task marked DONE but criteria STUB/PARTIAL
 
 Merge the verifier's report into the gap analysis below. Any
 `STUB` / `falsely_complete` finding is a candidate for
-`/ck:backprop --from-finding F-XXX`.
+`/ck:revise --trace --from-finding F-XXX`.
 
 ## Step 2: Gap Analysis
 
@@ -235,16 +235,16 @@ Present this to the user:
 
 After presenting the report, **automatically update kits and site** based on findings. Do not ask — just do it.
 
-### Route findings through backpropagation (when `.cavekit/` is present)
+### Route findings through single-failure trace (when `.cavekit/` is present)
 
 For each finding that reveals a specific bug or gap (e.g., missing/vague
 criterion, stub implementation, `falsely_complete` task), prefer invoking
-`/ck:backprop --from-finding F-XXX` for that finding. The backpropagation
-skill enforces the six-step trace (TRACE → ANALYZE → PROPOSE → GENERATE →
-VERIFY → LOG), requires explicit user approval before writing a kit
-amendment, and produces an append-only audit entry in
-`.cavekit/history/backprop-log.md`. The inline kit-update rules below still
-apply when `.cavekit/` is absent.
+`/ck:revise --trace --from-finding F-XXX` for that finding. The `revision`
+skill's automated-trace subsection enforces the six-step protocol
+(TRACE → ANALYZE → PROPOSE → GENERATE → VERIFY → LOG), requires explicit user
+approval before writing a kit amendment, and produces an append-only audit
+entry in `.cavekit/history/backprop-log.md`. The inline kit-update rules below
+still apply when `.cavekit/` is absent.
 
 ### Update Kits
 

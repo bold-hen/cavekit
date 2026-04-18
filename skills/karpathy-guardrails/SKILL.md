@@ -23,7 +23,7 @@ Before the first edit, write down:
   unverified, flag `NEEDS_CONTEXT` and ask — do not guess.
 - **What does success look like?** Map each acceptance criterion to a concrete
   test, check, or observable behaviour. If a criterion is not verifiable,
-  propose a sharpening via the `backpropagation` skill, not a vague attempt.
+  propose a sharpening via the `revision` skill (automated-trace subsection), not a vague attempt.
 
 Refusing to produce code is allowed. A task with unknown scope is a spec bug,
 not a coding task.

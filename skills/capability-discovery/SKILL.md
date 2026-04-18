@@ -3,7 +3,7 @@ name: capability-discovery
 description: |
   Detect which MCP servers, Claude Code plugins, and CLI tools are available
   in the current environment, so kits and build sites can bind to real
-  capabilities instead of imagined ones. Runs via /ck:setup-tools or
+  capabilities instead of imagined ones. Runs via /ck:init --tools-only or
   `cavekit-tools.cjs discover`. Writes .cavekit/capabilities.json. Trigger
   phrases: "what do we have available", "what's installed", "detect tools",
   "can we use X", "setup tools".
