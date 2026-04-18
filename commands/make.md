@@ -254,6 +254,32 @@ Once the setup script completes (outputs the ralph prompt), you run the executio
 
    **Harness error recovery** (parallel mode, `MAX_PARALLEL>1`): if an Agent call returns `[Tool result missing due to internal error]`, no `agentId`, or otherwise reports a harness-level failure with no body, do NOT try to merge or clean up a worktree for it — there is none. Re-dispatch that packet **once sequentially** (on its own in a fresh message), then proceed. If the retry also errors, log the packet's tasks as BLOCKED with the harness error and move on. Do not retry a third time.
 
+   **Silent-return / no-op detection** (applies to BOTH modes, any `MAX_PARALLEL`): classify each returned agent result before attempting merge or cleanup. Treat a return as a **no-op** if ANY of the following is true:
+   - The agent body is empty, whitespace-only, or "No response".
+   - The body contains no `TASK RESULT:` block.
+   - The harness reports zero tool calls for the agent (visible in the Agent tool result metadata; also implied if the worktree has no new commits and no modified files).
+   - The worktree was auto-removed with no branch commits (Claude Code auto-cleans worktrees with zero changes — this is the tell).
+
+   A no-op return is **not** the same as a BLOCKED result. Do NOT treat a no-op as progress and do NOT attempt a worktree merge/cleanup sequence on it (worktree is already gone). Handle it as follows:
+
+   1. Log a concrete line in wave status:
+      ```
+      T-{ID}: {title} — NO-OP (0 tool calls / empty body / auto-removed worktree). Treating as BLOCKED.
+      ```
+   2. Append an entry to `context/impl/dead-ends.md`:
+      ```markdown
+      ## DE-noop-T-{ID}: task-builder returned no-op
+      **Task:** T-{ID}
+      **Approach:** Dispatched ck:task-builder (model={EXECUTION_MODEL}, isolation={TB_ISOLATION}).
+      **Result:** Agent returned with 0 tool calls / no TASK RESULT / empty body.
+      **Recommendation:** Retry once inline in the parent session with explicit task + cavekit paths pasted into context; if that also produces no progress, escalate to the user.
+      ```
+   3. Retry the packet **at most once**, and when you retry:
+      - Drop to inline execution for the retry (parent session implements directly, no subagent, no worktree). This removes the subagent/worktree dimension from the failure mode.
+      - Paste the full task entry, cavekit requirements, and acceptance criteria into the parent's own context before starting. Do not re-dispatch an identical prompt — identical prompts produce identical no-ops.
+   4. If the inline retry also produces zero file changes and zero commits, mark the task BLOCKED in the build site (`cavekit-tools mark-complete` is NOT used for BLOCKED — leave status unchanged; record the blocker in `impl/impl-*.md` under Issues Found) and move on. Do not loop.
+   5. If team mode is active, release the claim with `cavekit team release T-XXX --note "no-op return from task-builder"` and stop the heartbeat — otherwise the claim lingers and blocks teammates.
+
    ---
 
 5. **After wave completes**:
@@ -376,6 +402,7 @@ Then output the completion promise from the ralph prompt.
 - **3 consecutive test failures on same task** → mark BLOCKED, document in dead-ends.md, skip
 - **Merge conflict unresolvable** → clean up remaining worktrees (`git worktree remove <path> --force` for each), stop the wave, report which branches conflict
 - **All remaining tasks blocked** → report the dependency chain and stop
+- **2 consecutive no-op returns from any task-builder dispatch in the same wave** → stop dispatching subagents for the rest of this wave. Finish the remaining packets inline in the parent session. Log: `[ck:make] task-builder no-op circuit breaker tripped — inline fallback engaged for wave {N}.` This prevents burning the iteration budget on an agent that keeps returning empty.
 
 ## Critical Rules
 

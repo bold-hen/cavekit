@@ -44,6 +44,7 @@ When you reach the **"Execute based on frontier size"** section:
   - Dispatch them in a single assistant message with multiple `Agent` tool calls.
   - Use the dispatch template from `commands/make.md` verbatim (with `isolation: "worktree"` included).
   - Apply the **Harness error recovery** rule if any packet returns a harness-level failure: retry that packet once sequentially; mark BLOCKED if it errors a second time.
+  - Apply the **Silent-return / no-op detection** rule from `commands/make.md`: if a packet returns with 0 tool calls, empty body, no `TASK RESULT`, or an auto-removed empty worktree, do NOT treat it as progress and do NOT attempt worktree merge/cleanup. Log it, write a dead-end entry, retry once **inline in the parent session** (not as another subagent), and BLOCK if the inline retry also produces no commits. If 2 no-op returns occur in the same wave, trip the circuit breaker and finish the wave inline.
 
 Post-wave cleanup follows the `TB_ISOLATION=worktree` branch in `commands/make.md`:
 1. `git merge <branch> --no-edit`

@@ -285,17 +285,32 @@ Example:
 > **Approach C: Five fine-grained domains**
 > Pros: Maximum parallelism. Cons: Over-decomposed, too many cross-references for this scope.
 
-#### 3g: Present Design Incrementally
+#### 3g: Present Full Design for Approval (single message)
 
-Once the user picks an approach, present the design **section by section**. Scale each section to its complexity — a few sentences if straightforward, more detail if nuanced.
+Once the user picks an approach, present the **entire domain decomposition in one message** and ask for approval once. Do NOT walk through domains one-by-one across multiple turns — the user sees the whole picture at once and can react to any part of it.
 
-For each proposed domain:
-1. Present scope and boundaries
-2. Present key requirements with acceptance criteria
-3. Present cross-references and dependencies
-4. Ask: "Does this look right so far?"
+Structure the single message as:
 
-Only move to the next domain when the current one is approved. Be ready to revise.
+```
+## Proposed Domains ({count})
+
+### 1. {domain-name}
+**Scope:** {one or two sentences}
+**Key requirements:** {2–5 bullets with testable acceptance criteria}
+**Depends on:** {other domains, or "none"}
+
+### 2. {domain-name}
+...
+
+### Cross-references
+{brief map of how domains interact}
+
+Approve this decomposition, or tell me what to change?
+```
+
+Scale each domain block to its complexity — a few bullets is fine for straightforward domains, more detail only if genuinely nuanced. Keep the whole message scannable.
+
+If the user requests changes, revise and re-present the full updated decomposition in one message. Only proceed to Step 4 once the user approves.
 
 **Design for isolation:** Each domain should:
 - Have one clear purpose
@@ -335,7 +350,13 @@ Analyze the input and decompose into logical domains. Each domain should be:
 
 **Only after user approves the design**, generate cavekit files.
 
-Do NOT perform the actual cavekit writing inline in the parent thread. Dispatch a `ck:drafter` subagent with `model: "{REASONING_MODEL}"` to write the files, then review the result in the parent thread.
+**Write kits inline in the parent thread.** Do NOT dispatch a `ck:drafter` subagent — the parent session performs the cavekit writing directly, following the structure in `agents/drafter.md` as a reference guide. This removes the subagent-dispatch failure mode (silent returns, worktree churn) and keeps the kit-writing step observable.
+
+Follow the drafter playbook inline:
+1. Read the agreed decomposition from the approved design.
+2. For each domain, write `context/kits/cavekit-{domain}.md` directly with Write/Edit.
+3. Self-review each file against the quality rules below before moving on.
+4. Write `context/kits/cavekit-overview.md`.
 
 For each domain, create `context/kits/cavekit-{domain}.md`:
 
@@ -482,13 +503,18 @@ Agent tool (subagent_type: "ck:cavekit-reviewer", model: "{REASONING_MODEL}"):
 
 ## Step 9: User Review Gate
 
-After the review loop passes, ask the user to review the written kits:
+After the review loop passes, present the Draft Report (Step 10 format) in a single message and ask for approval **with an explicit auto-advance offer**:
 
-> "Kits written and validated. Files are in `context/kits/`. Please review them and let me know if you want to make any changes before we move to the Architect phase."
+> "Kits written and validated. Files are in `context/kits/`. Reply **approve** (or `/ck:map`) to auto-advance to the Architect phase, or tell me what to change."
 
-Wait for the user's response. If they request changes, make them and re-run Step 8. Only proceed once the user approves.
+Response handling:
+- **Approve / yes / looks good / ship it / ok / `/ck:map`** → treat as full approval. Skip waiting for a second confirmation. Immediately invoke `/ck:map` in the same turn and proceed into the Architect phase.
+- **Change requests** → apply changes, re-run Step 8, then return here. Do not auto-advance until the user approves.
+- **Ambiguous** → ask once for clarification; do not advance.
 
-## Step 10: Report and Transition
+The single approval in 3g + the single approval here are the only two user gates. Do not introduce extra per-domain or per-file checks.
+
+## Step 10: Draft Report Format
 
 ```markdown
 ## Draft Report
@@ -505,10 +531,10 @@ Wait for the user's response. If they request changes, make them and re-run Step
 - {anything that couldn't be fully specified}
 
 ### Next Step
-Run `/ck:map` to generate the build site from these kits.
+Reply **approve** to auto-advance to `/ck:map`, or request changes.
 ```
 
-Present the report. When the user is ready, transition to `/ck:map`.
+This is the payload shown in Step 9 — not a separate stage.
 
 ---
 
@@ -518,6 +544,6 @@ Present the report. When the user is ready, transition to `/ck:map`.
 - **Multiple choice preferred** — easier to answer than open-ended when possible
 - **YAGNI ruthlessly** — remove unnecessary features from all kits
 - **Explore alternatives** — always propose 2-3 approaches before settling
-- **Incremental validation** — present design section by section, get approval before moving on
+- **Single-message domain approval** — present the full decomposition in one message and approve once; don't walk domains one-by-one
 - **Design for isolation** — each domain has one purpose, clear interfaces, independently testable
 - **No cavekit generation before design approval** — the design conversation IS the value

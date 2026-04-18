@@ -310,7 +310,7 @@ The Draft phase (`/ck:sketch`) now embeds brainstorming principles directly. Whe
 1. **Explore project context** — check existing files, docs, commits before asking questions
 2. **Ask clarifying questions one at a time** — understand purpose, constraints, success criteria
 3. **Propose 2-3 domain decomposition approaches** — with tradeoffs and a recommendation
-4. **Present the design incrementally** — section by section, get approval per domain
+4. **Present the full decomposition in one message** — all domains together, approve once; not per-domain walk-through
 5. **Generate kits only after design approval** — formalize with acceptance criteria
 6. **Cavekit review loop** — automated reviewer checks quality, up to 3 iterations
 7. **User review gate** — explicit approval before transitioning to Architect phase

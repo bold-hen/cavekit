@@ -37,7 +37,7 @@ Stop and wait.
 
 ## Phase 1: Streamlined Sketch
 
-No interactive Q&A. No approach proposals. No incremental presentation. Dispatch a `ck:drafter` subagent with `model: "{REASONING_MODEL}"`.
+No interactive Q&A. No approach proposals. No incremental presentation. **Write kits inline in the parent session** — do NOT dispatch a `ck:drafter` subagent. The parent uses the drafter playbook (`agents/drafter.md`) as a reference and performs the work directly with Read/Write/Edit.
 
 ### 1a: Ensure Directories
 
