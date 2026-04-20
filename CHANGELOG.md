@@ -1,8 +1,8 @@
 # CHANGELOG
 
-## v2.0.0 — the rewrite
+## v4.0.0 — the rewrite
 
-Full rewrite. Not backward compatible. Different shape, same name.
+Full rewrite. Not backward compatible with v3.x. Different shape, same name.
 
 ### philosophy
 
@@ -19,11 +19,13 @@ Kept only what earned its tokens:
 - caveman symbol set (→ ∴ ∀ ∃ ! ? ⊥ ≠ ∈ ∉ ≤ ≥ & |) as default for spec writes
 - bug → §B → §V backprop reflex wired into `/ck:build` failure path
 - `/ck:spec from-code` — distill spec from existing codebase
-- `/ck:check` — read-only drift report (replaces five v1 review flavors)
+- `/ck:check` — read-only drift report (replaces five v3 review flavors)
+- standalone `npx skills add JuliusBrussee/cavekit` path for installing
+  the caveman skill alone, no plugin required
 
-### removed
+### removed (relative to v3.1.0)
 
-- 13 of 16 v1 commands (sketch/map/make/ship/review/revise/status/init/config/resume/help/design/research/team/make-parallel)
+- 13 of 16 commands (sketch/map/make/ship/review/revise/status/init/config/resume/help/design/research/team/make-parallel)
 - all 12 named sub-agents
 - 19 of 21 skills
 - Go binary and source (`cmd/`, `internal/`, `bin/`, `cavekit` executable)
@@ -35,32 +37,32 @@ Kept only what earned its tokens:
 - design-system `DESIGN.md` workflow
 - knowledge-graph `graphify-out/` integration
 - parallel wave execution and team mode
-- `install.sh` (618 lines → 0)
+- `install.sh` (216 lines → 0)
 
 ### changed
 
-- caveman was opt-in for inter-agent chatter in v1; default for spec writes in v2
-- version: 3.1.0 → 2.0.0 (deliberate reset — v2 is a new project under the old name)
+- caveman was opt-in for inter-agent chatter in v3; default for spec writes in v4
+- version: 3.1.0 → 4.0.0 (major rewrite, semver respected)
 - README, plugin metadata, marketplace entry
 
 ### migration
 
-See [`UPGRADE.md`](./UPGRADE.md). No automated migrator — the v1 kit shape
-does not map cleanly to v2's single file. Recommended path: run
-`/ck:spec from-code` on your existing v1 project to distill a v2 spec
+See [`UPGRADE.md`](./UPGRADE.md). No automated migrator — the v3 kit
+shape does not map cleanly to v4's single file. Recommended path: run
+`/ck:spec from-code` on your existing v3 project to distill a v4 spec
 from your built code.
 
-### v1 reachability
+### v3 reachability
 
-v1 is frozen at tag `v1.3.1-final`. Stays installable and documented.
-Fixes only for critical bugs; no new features.
+v3 is frozen at tag `v3.1.0`. Stays installable and documented. Fixes
+only for critical bugs; no new features.
 
 ---
 
-## v1.3.1 and prior
+## v3.1.0 and prior
 
-See git log before the `v2.0.0` commit, or check out `v1.3.1-final`:
+See git log before the `v4.0.0` commit, or check out `v3.1.0`:
 
 ```bash
-git checkout v1.3.1-final
+git checkout v3.1.0
 ```

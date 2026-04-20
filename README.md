@@ -9,17 +9,18 @@
 
 ## what this is
 
-Plan-then-execute forgets. SDD remembers — but most SDD frameworks bury that
-value under agent swarms, dashboards, and ceremony that costs more tokens
-than it saves.
+Plan-then-execute forgets. SDD remembers — but most SDD frameworks bury
+that value under agent swarms, dashboards, and ceremony that costs more
+tokens than it saves.
 
-Cavekit v2 keeps only what earns its place:
+Cavekit 4 is a rewrite from the ground up. It keeps only what earns its
+place:
 
 - **durable spec** — `SPEC.md` at repo root survives context resets.
 - **caveman encoding** — ~75% fewer tokens than prose. Symbols, fragments,
   pipe tables for repeating records.
-- **backprop reflex** — every test failure becomes a `§B` entry; classes of
-  bug become `§V` invariants the spec never forgets.
+- **backprop reflex** — every test failure becomes a `§B` entry; classes
+  of bug become `§V` invariants the spec never forgets.
 
 That's the whole pitch.
 
@@ -33,15 +34,34 @@ That's the whole pitch.
 
 ## install
 
-Add to your Claude Code marketplace sources:
+### full plugin (all three commands + both skills)
+
+Marketplace:
 
 ```bash
 /plugin marketplace add juliusbrussee/cavekit
 /plugin install ck@cavekit
 ```
 
-Or clone into `~/.claude/plugins/` directly. Commands become available as
-`/ck:spec`, `/ck:build`, `/ck:check`.
+Git:
+
+```bash
+git clone https://github.com/juliusbrussee/cavekit.git ~/.claude/plugins/cavekit
+```
+
+Commands become available as `/ck:spec`, `/ck:build`, `/ck:check`.
+
+### caveman skill alone (npx, no plugin)
+
+If you just want the caveman encoding skill (to compress your own prompts
+or specs, outside the cavekit command flow):
+
+```bash
+npx skills add JuliusBrussee/cavekit
+```
+
+One-shot installer. Copies `SKILL.md` to `~/.claude/skills/caveman/`.
+Claude Code picks it up on next launch.
 
 ## format
 
@@ -67,62 +87,62 @@ skills/backprop       bug → spec protocol (six steps)
 
 ---
 
-## cavekit v1
+## older cavekit (the Hunt lifecycle, v3.1.0 and earlier)
 
-v1 is **not deprecated** — it is frozen. It remains a fully working plugin
-for users who prefer its scope.
+The previous generation is **not deprecated** — it is frozen at tag
+[`v3.1.0`](https://github.com/juliusbrussee/cavekit/tree/v3.1.0) and
+remains a fully working plugin.
 
-**What v1 is**:
+**What it is**:
 
 > Spec-driven AI development with an autonomous execution loop. Four-command
-> Hunt lifecycle (`/ck:sketch` → `/ck:map` → `/ck:make` → `/ck:check`), plus
-> `/ck:ship`, `/ck:review`, `/ck:revise`, `/ck:status`, `/ck:design`,
+> Hunt lifecycle (`/ck:sketch` → `/ck:map` → `/ck:make` → `/ck:check`),
+> plus `/ck:ship`, `/ck:review`, `/ck:revise`, `/ck:status`, `/ck:design`,
 > `/ck:research`, `/ck:init`, `/ck:config`, `/ck:resume`, `/ck:help` — 16
 > slash commands total. 12 named sub-agents. Per-task token budgets,
 > stop-hook state machine, model-tier routing, auto-backpropagation from
 > test failures, tool-result caching, Codex peer review, Karpathy
 > behavioral guardrails, caveman token compression, knowledge-graph
-> integration, and design-system enforcement. Parallel wave execution
-> and team mode.
+> integration, and design-system enforcement. Parallel wave execution and
+> team mode.
 
-**Pick v1 if** you want the full autonomous loop, parallel agents, peer
-review, or design-system workflow. **Pick v2 if** you want the distilled
-core — one spec, three commands, no orchestration.
+**Pick v3.1.0** if you want the full autonomous loop, parallel agents,
+peer review, or design-system workflow. **Pick v4** if you want the
+distilled core — one spec, three commands, no orchestration.
 
-### install v1
+### install the older version
 
 Marketplace:
 
 ```bash
-/plugin marketplace add juliusbrussee/cavekit@v1.3.1-final
+/plugin marketplace add juliusbrussee/cavekit@v3.1.0
 /plugin install ck@cavekit
 ```
 
 Git:
 
 ```bash
-git clone -b v1.3.1-final https://github.com/juliusbrussee/cavekit.git
+git clone -b v3.1.0 https://github.com/juliusbrussee/cavekit.git
 ```
 
-v1 docs live at that tag — `git checkout v1.3.1-final` and read the README
-there for full command reference, skill catalog, and the Hunt lifecycle
-guide.
+Full docs live at the tag — `git checkout v3.1.0` and read the README
+there for command reference, skill catalog, and the Hunt lifecycle guide.
 
 ### choosing, or moving
 
 See [`UPGRADE.md`](./UPGRADE.md). Honest framing:
-- Stay on v1 if your project has active `context/kits/` investment.
-- Move to v2 if you want fewer moving parts and smaller token bills.
+- Stay on v3.1.0 if your project has active `context/kits/` investment.
+- Move to v4 if you want fewer moving parts and smaller token bills.
 - It is a **two-way door** — `SPEC.md` is plain markdown; nothing traps
   you in either direction.
 
 ## philosophy
 
-> The spec is the only artifact that earns its tokens. Everything else that
-> costs tokens must either save more tokens later or the user's attention,
-> or it gets cut.
+> The spec is the only artifact that earns its tokens. Everything else
+> that costs tokens must either save more tokens later, or the user's
+> attention, or it gets cut.
 
-See [`CHANGELOG.md`](./CHANGELOG.md) for the v1 → v2 break.
+See [`CHANGELOG.md`](./CHANGELOG.md) for the full v3 → v4 break.
 
 ## license
 
